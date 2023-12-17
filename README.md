@@ -4,3 +4,5 @@ This repository hosts a full implementation of a web3 product similar to Uniswap
 
 ## reference
 https://jeiwan.net/posts/programming-defi-uniswap-1/
+https://jeiwan.net/posts/programming-defi-uniswap-2/
+https://jeiwan.net/posts/programming-defi-uniswap-3/
