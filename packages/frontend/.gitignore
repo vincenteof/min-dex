@@ -1,29 +1,20 @@
-node_modules
-.env
-
-# Hardhat files
-packages/core/cache
-packages/core/artifacts
-
-# TypeChain files
-packages/core/typechain
-packages/core/typechain-types
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-.pnp
+/node_modules
+/.pnp
 .pnp.js
 .yarn/install-state.gz
 
 # testing
-coverage
-coverage.json
+/coverage
 
 # next.js
-.next
-out
+/.next/
+/out/
 
 # production
-build
+/build
 
 # misc
 .DS_Store
