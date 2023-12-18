@@ -2,11 +2,14 @@
 pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract Exchange {
+uint256 constant FEE_PERCENTAGE = 1;
+
+contract Exchange is ERC20 {
     address public tokenAddress;
 
-    constructor(address _tokenAddress) {
+    constructor(address _tokenAddress) ERC20("Web3-From-Scratch", "W3FS") {
         require(_tokenAddress != address(0), "invalid token address");
         tokenAddress = _tokenAddress;
     }
@@ -15,29 +18,54 @@ contract Exchange {
         return IERC20(tokenAddress).balanceOf(address(this));
     }
 
-    function addLiquidity(uint256 _tokenAmount) public payable {
+    function addLiquidity(
+        uint256 _tokenAmount
+    ) public payable returns (uint256) {
         if (getReserve() == 0) {
             IERC20 token = IERC20(tokenAddress);
             token.transferFrom(msg.sender, address(this), _tokenAmount);
+            uint256 liquidity = address(this).balance;
+            _mint(msg.sender, liquidity);
+            return liquidity;
         } else {
-            uint256 ethReverse = address(this).balance - msg.value;
-            uint256 tokenReverse = getReserve();
-            uint256 ethPrice = tokenReverse / ethReverse;
-            uint256 tokenAmount = msg.value * ethPrice;
+            uint256 ethReserve = address(this).balance - msg.value;
+            uint256 tokenReserve = getReserve();
+            uint256 tokenAmount = (msg.value * ethReserve) / tokenReserve;
             require(_tokenAmount >= tokenAmount, "insufficient token ammount");
             IERC20 token = IERC20(tokenAddress);
             token.transferFrom(msg.sender, address(this), tokenAmount);
+            uint256 liquidity = (totalSupply() * msg.value) / ethReserve;
+            _mint(msg.sender, liquidity);
+            return liquidity;
         }
     }
 
-    // (inputReverse + inputAmount) * (outputReverse - outputAmount) = inputReverse * outputReverse
+    function removeLiquidity(
+        uint256 _amount
+    ) public returns (uint256, uint256) {
+        require(_amount > 0, "invalid amount");
+        uint256 ethAmount = (address(this).balance * _amount) / totalSupply();
+        uint256 tokenAmount = (getReserve() * _amount) / totalSupply();
+        _burn(msg.sender, _amount);
+        payable(msg.sender).transfer(ethAmount);
+        IERC20(tokenAddress).transfer(msg.sender, tokenAmount);
+        return (ethAmount, tokenAmount);
+    }
+
+    // (inputReserve + inputAmount) * (outputReserve - outputAmount) = inputReserve * outputReserve
     function getAmount(
         uint256 inputAmount,
         uint256 inputReserve,
         uint256 outputReserve
     ) private pure returns (uint256) {
         require(inputReserve > 0 && outputReserve > 0, "invalid reserves");
-        return (inputAmount * outputReserve) / (inputReserve + inputAmount);
+        uint256 inputAmountWithFee = inputAmount * (100 - FEE_PERCENTAGE);
+        uint256 numerator = inputAmountWithFee * outputReserve;
+        uint256 denominator = (inputReserve * 100) + inputAmountWithFee;
+        // result should be `(inputAmount * outputReserve) / (inputReserve + inputAmount)` in mathematical aspect
+        // since soldity doesn't support float number, here both numerator and denominator are multiplied by a power of 10
+        // and the fees are calculated into the exchange reserves automatically
+        return numerator / denominator;
     }
 
     // when someone sell eth for token,
