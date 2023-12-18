@@ -30,6 +30,8 @@ contract Exchange {
         return (inputAmount * outputReserve) / (inputReserve + inputAmount);
     }
 
+    // when someone sell eth for token,
+    // this contract has more eth and less token
     function getTokenAmount(uint256 _ethSold) public view returns (uint256) {
         require(_ethSold > 0, "ethSold is too small");
         uint256 tokenReserve = getReserve();
