@@ -16,8 +16,18 @@ contract Exchange {
     }
 
     function addLiquidity(uint256 _tokenAmount) public payable {
-        IERC20 token = IERC20(tokenAddress);
-        token.transferFrom(msg.sender, address(this), _tokenAmount);
+        if (getReserve() == 0) {
+            IERC20 token = IERC20(tokenAddress);
+            token.transferFrom(msg.sender, address(this), _tokenAmount);
+        } else {
+            uint256 ethReverse = address(this).balance - msg.value;
+            uint256 tokenReverse = getReserve();
+            uint256 ethPrice = tokenReverse / ethReverse;
+            uint256 tokenAmount = msg.value * ethPrice;
+            require(_tokenAmount >= tokenAmount, "insufficient token ammount");
+            IERC20 token = IERC20(tokenAddress);
+            token.transferFrom(msg.sender, address(this), tokenAmount);
+        }
     }
 
     // (inputReverse + inputAmount) * (outputReverse - outputAmount) = inputReverse * outputReverse
@@ -47,15 +57,23 @@ contract Exchange {
     function ethToTokenSwap(uint256 _minTokens) public payable {
         uint256 tokenReserve = getReserve();
         // this method is payeable so then it executed the total balance has changed
-        uint256 tokenBought = getAmount(msg.value, address(this).balance - msg.value, tokenReserve);
+        uint256 tokenBought = getAmount(
+            msg.value,
+            address(this).balance - msg.value,
+            tokenReserve
+        );
         require(tokenBought >= _minTokens, "insufficient output amount");
         IERC20(tokenAddress).transfer(msg.sender, tokenBought);
     }
 
-     function tokenToEthSwap(uint256 _tokenSold, uint256 _minEth) public {
+    function tokenToEthSwap(uint256 _tokenSold, uint256 _minEth) public {
         uint256 ethBought = getEthAmount(_tokenSold);
         require(ethBought >= _minEth, "insufficient output amount");
-        IERC20(tokenAddress).transferFrom(msg.sender, address(this), _tokenSold);
+        IERC20(tokenAddress).transferFrom(
+            msg.sender,
+            address(this),
+            _tokenSold
+        );
         payable(msg.sender).transfer(ethBought);
-     }
+    }
 }
