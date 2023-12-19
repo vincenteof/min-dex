@@ -30,40 +30,96 @@ describe('addLiquidity', async () => {
 
   it('is deployed', async () => {
     expect(await exchange.waitForDeployment()).to.equal(exchange)
+    expect(await exchange.name()).to.equal('Web3-From-Scratch')
+    expect(await exchange.symbol()).to.equal('W3FS')
+    expect(await exchange.totalSupply()).to.equal(toWei(0))
+    expect(await exchange.factoryAddress()).to.equal(owner.address)
   })
 
   describe('addLiquidity', async () => {
-    it('adds liquidity', async () => {
-      await token.approve(exchange.target, toWei(200))
-      await exchange.addLiquidity(toWei(200), { value: toWei(100) })
-      expect(await getBalance(exchange.target)).to.equal(toWei(100))
-      expect(await exchange.getReserve()).to.equal(toWei(200))
+    describe('empty reserves', async () => {
+      it('adds liquidity', async () => {
+        await token.approve(exchange.target, toWei(200))
+        await exchange.addLiquidity(toWei(200), { value: toWei(100) })
+
+        expect(await getBalance(exchange.target)).to.equal(toWei(100))
+        expect(await exchange.getReserve()).to.equal(toWei(200))
+      })
+
+      it('mints LP tokens', async () => {
+        await token.approve(exchange.target, toWei(200))
+        await exchange.addLiquidity(toWei(200), { value: toWei(100) })
+
+        expect(await exchange.balanceOf(owner.address)).to.eq(toWei(100))
+        expect(await exchange.totalSupply()).to.eq(toWei(100))
+      })
+
+      it('allows zero amounts', async () => {
+        await token.approve(exchange.target, 0)
+        await exchange.addLiquidity(0, { value: 0 })
+
+        expect(await getBalance(exchange.target)).to.equal(0)
+        expect(await exchange.getReserve()).to.equal(0)
+      })
+    })
+
+    describe('existing reserves', async () => {
+      beforeEach(async () => {
+        await token.approve(exchange.target, toWei(300))
+        await exchange.addLiquidity(toWei(200), { value: toWei(100) })
+      })
+
+      it('preserves exchange rate', async () => {
+        await exchange.addLiquidity(toWei(200), { value: toWei(50) })
+
+        expect(await getBalance(exchange.target)).to.equal(toWei(150))
+        expect(await exchange.getReserve()).to.equal(toWei(300))
+      })
+
+      it('mints LP tokens', async () => {
+        await exchange.addLiquidity(toWei(200), { value: toWei(50) })
+
+        expect(await exchange.balanceOf(owner.address)).to.eq(toWei(150))
+        expect(await exchange.totalSupply()).to.eq(toWei(150))
+      })
+
+      it('fails when not enough tokens', async () => {
+        await expect(
+          exchange.addLiquidity(toWei(50), { value: toWei(50) })
+        ).to.be.revertedWith('insufficient token amount')
+      })
     })
   })
 
-  describe('getTokenAmount', async () => {
-    it('returns correct token amount', async () => {
-      await token.approve(exchange.target, toWei(2000))
-      await exchange.addLiquidity(toWei(2000), { value: toWei(1000) })
-      let tokenAmount = await exchange.getTokenAmount(toWei(1))
-      expect(fromWei(tokenAmount)).to.equal('1.998001998001998001')
-      tokenAmount = await exchange.getTokenAmount(toWei(100))
-      expect(fromWei(tokenAmount)).to.equal('181.818181818181818181')
-      tokenAmount = await exchange.getTokenAmount(toWei(1000))
-      expect(fromWei(tokenAmount)).to.equal('1000.0')
-    })
-  })
+  describe("getTokenAmount", async () => {
+    it("returns correct token amount", async () => {
+      await token.approve(exchange.target, toWei(2000));
+      await exchange.addLiquidity(toWei(2000), { value: toWei(1000) });
 
-  describe('getEthAmount', async () => {
-    it('returns correct eth amount', async () => {
-      await token.approve(exchange.target, toWei(2000))
-      await exchange.addLiquidity(toWei(2000), { value: toWei(1000) })
-      let ethAmount = await exchange.getEthAmount(toWei(2))
-      expect(fromWei(ethAmount)).to.equal('0.999000999000999')
-      ethAmount = await exchange.getEthAmount(toWei(100))
-      expect(fromWei(ethAmount)).to.equal('47.619047619047619047')
-      ethAmount = await exchange.getEthAmount(toWei(2000))
-      expect(fromWei(ethAmount)).to.equal('500.0')
-    })
-  })
+      let tokensOut = await exchange.getTokenAmount(toWei(1));
+      expect(fromWei(tokensOut)).to.equal("1.978041738678708079");
+
+      tokensOut = await exchange.getTokenAmount(toWei(100));
+      expect(fromWei(tokensOut)).to.equal("180.1637852593266606");
+
+      tokensOut = await exchange.getTokenAmount(toWei(1000));
+      expect(fromWei(tokensOut)).to.equal("994.974874371859296482");
+    });
+  });
+
+  describe("getEthAmount", async () => {
+    it("returns correct ether amount", async () => {
+      await token.approve(exchange.target, toWei(2000));
+      await exchange.addLiquidity(toWei(2000), { value: toWei(1000) });
+
+      let ethOut = await exchange.getEthAmount(toWei(2));
+      expect(fromWei(ethOut)).to.equal("0.989020869339354039");
+
+      ethOut = await exchange.getEthAmount(toWei(100));
+      expect(fromWei(ethOut)).to.equal("47.16531681753215817");
+
+      ethOut = await exchange.getEthAmount(toWei(2000));
+      expect(fromWei(ethOut)).to.equal("497.487437185929648241");
+    });
+  });
 })
