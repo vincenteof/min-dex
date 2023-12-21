@@ -1,9 +1,11 @@
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
+import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers'
+import { Token } from '@/typechain-types'
 
 describe('Token', () => {
-  let owner: any
-  let token: any
+  let owner: HardhatEthersSigner
+  let token: Token
   before(async () => {
     const signers = await ethers.getSigners()
     owner = signers[0]

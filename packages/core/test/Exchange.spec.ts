@@ -1,19 +1,20 @@
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
+import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers'
+import { Exchange, Token } from '@/typechain-types'
 
-const toWei = (value: number) => ethers.parseEther(value.toString())
+const toWei = (value: bigint | number) => ethers.parseEther(value.toString())
 
-const fromWei = (value: string | number) =>
+const fromWei = (value: string | bigint | number) =>
   ethers.formatEther(typeof value === 'string' ? value : value.toString())
 
 const getBalance = ethers.provider.getBalance.bind(ethers.provider)
 
 describe('addLiquidity', async () => {
-  // todo: make contract instance type safe
-  let owner: any
-  let user: any
-  let token: any
-  let exchange: any
+  let owner: HardhatEthersSigner
+  let user: HardhatEthersSigner
+  let token: Token
+  let exchange: Exchange
 
   beforeEach(async () => {
     const signers = await ethers.getSigners()

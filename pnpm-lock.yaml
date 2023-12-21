@@ -14,12 +14,18 @@ importers:
         specifier: ^4.9.5
         version: 4.9.5
     devDependencies:
+      '@nomicfoundation/hardhat-ethers':
+        specifier: ^3.0.5
+        version: 3.0.5(ethers@6.9.0)(hardhat@2.19.2)
       '@nomicfoundation/hardhat-toolbox':
         specifier: ^4.0.0
         version: 4.0.0(@nomicfoundation/hardhat-chai-matchers@2.0.2)(@nomicfoundation/hardhat-ethers@3.0.5)(@nomicfoundation/hardhat-network-helpers@1.0.10)(@nomicfoundation/hardhat-verify@2.0.2)(@typechain/ethers-v6@0.5.1)(@typechain/hardhat@9.1.0)(@types/chai@4.3.11)(@types/mocha@10.0.6)(@types/node@20.10.4)(chai@4.3.10)(ethers@6.9.0)(hardhat-gas-reporter@1.0.9)(hardhat@2.19.2)(solidity-coverage@0.8.5)(ts-node@10.9.2)(typechain@8.3.2)(typescript@5.3.3)
       chai:
         specifier: ^4.3.10
         version: 4.3.10
+      ethers:
+        specifier: ^6.1.0
+        version: 6.9.0
       hardhat:
         specifier: ^2.19.2
         version: 2.19.2(ts-node@10.9.2)(typescript@5.3.3)
@@ -4843,7 +4849,7 @@ packages:
     resolution: {integrity: sha512-HFM8rkZ+i3zrV+4LQjwQ0W+ez98pApMGM3HUrN04j3CqzPOzl9nmP15Y8YXNm8QHGv/eacOVEjqhmWpkRV0NAw==}
     engines: {node: '>= 0.10'}
     dependencies:
-      resolve: 1.17.0
+      resolve: 1.22.8
     dev: true
 
   /recursive-readdir@2.2.3:
