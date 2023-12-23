@@ -1,11 +1,11 @@
 import Link from 'next/link'
-import { ConnectButton } from '@rainbow-me/rainbowkit'
-import EthIcon from './eth-icon'
+import EthIcon from '@/components/icon/eth'
+import { CustomConnectButton } from '@/components/custom-connect-button'
 
 export default function Header() {
   return (
     <header className="sticky w-full border-b">
-      <div className="container flex items-center mx-auto h-16 px-2">
+      <div className="container flex items-center mx-auto h-16 px-8">
         <div className="flex mr-4">
           <EthIcon className="w-[22px] h-[35px] mr-6" />
           <nav className="flex items-center space-x-6 text-sm font-medium">
@@ -15,7 +15,7 @@ export default function Header() {
           </nav>
         </div>
         <div className="flex flex-1 justify-end">
-          <ConnectButton />
+          <CustomConnectButton />
         </div>
       </div>
     </header>
