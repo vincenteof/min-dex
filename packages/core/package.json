@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "node": "hardhat node --network hardhat --no-deploy",
+    "deploy": "hardhat deploy",
     "compile": "hardhat compile",
     "test": "hardhat test",
     "postinstall": "hardhat typechain"
@@ -16,6 +18,7 @@
     "chai": "^4.3.10",
     "ethers": "^6.1.0",
     "hardhat": "^2.19.2",
+    "hardhat-deploy": "^0.11.45",
     "typescript": "^5.3.3"
   }
 }

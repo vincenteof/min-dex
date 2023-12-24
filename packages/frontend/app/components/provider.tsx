@@ -20,6 +20,7 @@ import {
   base,
   zora,
   goerli,
+  hardhat
 } from 'wagmi/chains'
 import { publicProvider } from 'wagmi/providers/public'
 
@@ -31,6 +32,8 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
     arbitrum,
     base,
     zora,
+    // todo: add env to enable it
+    hardhat,
     ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [goerli] : []),
   ],
   [publicProvider()]
