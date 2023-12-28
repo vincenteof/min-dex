@@ -61,6 +61,7 @@ contract Exchange is ERC20 {
         require(_amount > 0, "invalid amount");
         uint256 ethAmount = (address(this).balance * _amount) / totalSupply();
         uint256 tokenAmount = (getReserve() * _amount) / totalSupply();
+        // we don't check the maximum value here becuase `_burn` does it
         _burn(msg.sender, _amount);
         payable(msg.sender).transfer(ethAmount);
         IERC20(tokenAddress).transfer(msg.sender, tokenAmount);
