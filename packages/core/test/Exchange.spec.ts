@@ -241,63 +241,68 @@ describe('addLiquidity', async () => {
       await exchange.addLiquidity(toWei(2000), { value: toWei(1000) })
     })
 
-    // it('transfers at least min amount of tokens', async () => {
-    //   const userBalanceBefore = await getBalance(user.address)
-    //   const exchangeBalanceBefore = await getBalance(exchange.target)
+    it('transfers at least min amount of tokens', async () => {
+      const userBalanceBefore = await getBalance(user.address)
+      const exchangeBalanceBefore = await getBalance(exchange.target)
+      // value without gas fee
+      // we must do the calculation before all mutations
+      const pureEthBought = await exchange.getEthAmount(toWei(2))
+      const tx = await exchange.connect(user).tokenToEthSwap(toWei(2), toWei(0.9))
+      const gasFee = await getGasFeeFromTx(tx)
 
-    //   await exchange.connect(user).tokenToEthSwap(toWei(2), toWei(0.9))
+      const userBalanceAfter = await getBalance(user.address)
+      expect(fromWei(userBalanceAfter - userBalanceBefore)).to.equal(
+        fromWei(pureEthBought - gasFee)
+      )
 
-    //   const userBalanceAfter = await getBalance(user.address)
-    //   expect(fromWei(userBalanceAfter - userBalanceBefore)).to.equal(
-    //     '0.989020869279835039'
-    //   )
+      const userTokenBalance = await token.balanceOf(user.address)
+      expect(fromWei(userTokenBalance)).to.equal('20.0')
 
-    //   const userTokenBalance = await token.balanceOf(user.address)
-    //   expect(fromWei(userTokenBalance)).to.equal('20.0')
+      const exchangeBalanceAfter = await getBalance(exchange.target)
+      // here the exchange doesn't need to pay the gas
+      expect(fromWei(exchangeBalanceAfter - exchangeBalanceBefore)).to.equal(
+        fromWei(-pureEthBought)
+      )
 
-    //   const exchangeBalanceAfter = await getBalance(exchange.target)
-    //   expect(fromWei(exchangeBalanceAfter - exchangeBalanceBefore)).to.equal(
-    //     '-0.989020869339354039'
-    //   )
+      const exchangeTokenBalance = await token.balanceOf(exchange.target)
+      expect(fromWei(exchangeTokenBalance)).to.equal('2002.0')
+    })
 
-    //   const exchangeTokenBalance = await token.balanceOf(exchange.target)
-    //   expect(fromWei(exchangeTokenBalance)).to.equal('2002.0')
-    // })
+    it('affects exchange rate', async () => {
+      let ethOut = await exchange.getEthAmount(toWei(20))
+      expect(fromWei(ethOut)).to.equal('9.802950787206654124')
 
-    // it('affects exchange rate', async () => {
-    //   let ethOut = await exchange.getEthAmount(toWei(20))
-    //   expect(fromWei(ethOut)).to.equal('9.802950787206654124')
+      await exchange.connect(user).tokenToEthSwap(toWei(20), toWei(9))
 
-    //   await exchange.connect(user).tokenToEthSwap(toWei(20), toWei(9))
+      ethOut = await exchange.getEthAmount(toWei(20))
+      expect(fromWei(ethOut)).to.equal('9.61167838729939614')
+    })
 
-    //   ethOut = await exchange.getEthAmount(toWei(20))
-    //   expect(fromWei(ethOut)).to.equal('9.61167838729939614')
-    // })
+    it('fails when output amount is less than min amount', async () => {
+      await expect(
+        exchange.connect(user).tokenToEthSwap(toWei(2), toWei(1.0))
+      ).to.be.revertedWith('insufficient output amount')
+    })
 
-    // it('fails when output amount is less than min amount', async () => {
-    //   await expect(
-    //     exchange.connect(user).tokenToEthSwap(toWei(2), toWei(1.0))
-    //   ).to.be.revertedWith('insufficient output amount')
-    // })
+    it('allows zero swaps', async () => {
+      const userBalanceBefore = await getBalance(user.address)
+      const tx = await exchange.connect(user).tokenToEthSwap(toWei(0), toWei(0))
+      const gasFee = await getGasFeeFromTx(tx)
 
-    // it('allows zero swaps', async () => {
-    //   const userBalanceBefore = await getBalance(user.address)
-    //   await exchange.connect(user).tokenToEthSwap(toWei(0), toWei(0))
+      const userBalanceAfter = await getBalance(user.address)
+      expect(fromWei(userBalanceAfter - userBalanceBefore)).to.equal(
+        fromWei(toWei(0) - gasFee)
+      )
 
-    //   const userBalanceAfter = await getBalance(user.address)
-    //   expect(fromWei(userBalanceAfter - userBalanceBefore)).to.equal(
-    //     '-0.000000000044275'
-    //   )
+      const userTokenBalance = await token.balanceOf(user.address)
+      expect(fromWei(userTokenBalance)).to.equal('22.0')
 
-    //   const userTokenBalance = await token.balanceOf(user.address)
-    //   expect(fromWei(userTokenBalance)).to.equal('22.0')
+      const exchangeEthBalance = await getBalance(exchange.target)
+      expect(fromWei(exchangeEthBalance)).to.equal('1000.0')
 
-    //   const exchangeEthBalance = await getBalance(exchange.target)
-    //   expect(fromWei(exchangeEthBalance)).to.equal('1000.0')
-
-    //   const exchangeTokenBalance = await token.balanceOf(exchange.target)
-    //   expect(fromWei(exchangeTokenBalance)).to.equal('2000.0')
-    // })
+      const exchangeTokenBalance = await token.balanceOf(exchange.target)
+      expect(fromWei(exchangeTokenBalance)).to.equal('2000.0')
+    })
   })
 
   describe('tokenToTokenSwap', async () => {

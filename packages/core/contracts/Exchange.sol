@@ -87,13 +87,13 @@ contract Exchange is ERC20 {
     // when someone sell eth for token,
     // this contract has more eth and less token
     function getTokenAmount(uint256 _ethSold) public view returns (uint256) {
-        require(_ethSold > 0, "ethSold is too small");
+        require(_ethSold >= 0, "ethSold is too small");
         uint256 tokenReserve = getReserve();
         return getAmount(_ethSold, address(this).balance, tokenReserve);
     }
 
     function getEthAmount(uint256 _tokenSold) public view returns (uint256) {
-        require(_tokenSold > 0, "tokenSold is too small");
+        require(_tokenSold >= 0, "tokenSold is too small");
         uint256 tokenReserve = getReserve();
         return getAmount(_tokenSold, tokenReserve, address(this).balance);
     }
