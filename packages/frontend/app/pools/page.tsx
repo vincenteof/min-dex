@@ -2,20 +2,25 @@
 
 import { Button } from '@/components/ui/button'
 import InboxIcon from '@/components/icon/inbox'
-import { useAccount, useContractRead } from 'wagmi'
+import { useAccount, useContractRead, useNetwork } from 'wagmi'
 import { useConnectModal } from '@rainbow-me/rainbowkit'
 import Core from '@web3-from-scratch/core-abi'
+import Contracts from '@/lib/contracts'
 
 export default function Pools() {
   const { isConnected } = useAccount()
   const { openConnectModal } = useConnectModal()
+  const { chain } = useNetwork()
+
+  const factoryAddress = chain?.id ? Contracts[chain.id].Factory.address : '0x'
   const { data } = useContractRead({
-    address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+    address: factoryAddress,
     abi: Core.Factory.abi,
     functionName: 'getExchange',
     args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
   })
   console.log('data: ', data)
+
   return (
     <section className="w-full max-w-3xl pt-12 flex flex-col gap-6">
       <div className="w-full flex items-center justify-between">
