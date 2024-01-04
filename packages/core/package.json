@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "node": "hardhat node --network hardhat --no-deploy",
-    "deploy": "hardhat run scripts/deploy.ts",
+    "node": "hardhat node",
+    "deploy": "hardhat run --network localhost scripts/deploy.ts",
     "compile": "hardhat compile",
     "test": "hardhat test",
+    "generate-abi": "hardhat run scripts/generate-ts-abi.ts",
     "postinstall": "hardhat typechain"
   },
   "dependencies": {
