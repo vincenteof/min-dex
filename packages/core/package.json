@@ -8,6 +8,7 @@
     "compile": "hardhat compile",
     "test": "hardhat test",
     "generate-abi": "hardhat run scripts/generate-ts-abi.ts",
+    "add-test-liquidity": "hardhat run --network localhost scripts/add-test-liquidity.ts",
     "postinstall": "hardhat typechain"
   },
   "dependencies": {
