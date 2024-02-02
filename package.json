@@ -3,5 +3,8 @@
   "private": true,
   "scripts": {
     "test": "pnpm -r run test"
+  },
+  "devDependencies": {
+    "typescript": "^5"
   }
 }

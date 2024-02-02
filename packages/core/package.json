@@ -19,7 +19,6 @@
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
     "chai": "^4.3.10",
     "ethers": "^6.1.0",
-    "hardhat": "^2.19.2",
-    "typescript": "^5.3.3"
+    "hardhat": "^2.19.2"
   }
 }
