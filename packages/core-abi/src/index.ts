@@ -43,6 +43,149 @@ const deployedContracts = {
           {
             indexed: true,
             internalType: "address",
+            name: "buyer",
+            type: "address",
+          },
+          {
+            indexed: true,
+            internalType: "address",
+            name: "tokenAddress",
+            type: "address",
+          },
+          {
+            indexed: false,
+            internalType: "uint256",
+            name: "ethSold",
+            type: "uint256",
+          },
+          {
+            indexed: false,
+            internalType: "uint256",
+            name: "tokensBought",
+            type: "uint256",
+          },
+        ],
+        name: "EthToTokenSwap",
+        type: "event",
+      },
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: true,
+            internalType: "address",
+            name: "provider",
+            type: "address",
+          },
+          {
+            indexed: false,
+            internalType: "uint256",
+            name: "tokenAmount",
+            type: "uint256",
+          },
+          {
+            indexed: false,
+            internalType: "uint256",
+            name: "ethAmount",
+            type: "uint256",
+          },
+        ],
+        name: "LiquidityAdded",
+        type: "event",
+      },
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: true,
+            internalType: "address",
+            name: "provider",
+            type: "address",
+          },
+          {
+            indexed: false,
+            internalType: "uint256",
+            name: "tokenAmount",
+            type: "uint256",
+          },
+          {
+            indexed: false,
+            internalType: "uint256",
+            name: "ethAmount",
+            type: "uint256",
+          },
+        ],
+        name: "LiquidityRemoved",
+        type: "event",
+      },
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: true,
+            internalType: "address",
+            name: "seller",
+            type: "address",
+          },
+          {
+            indexed: true,
+            internalType: "address",
+            name: "tokenAddress",
+            type: "address",
+          },
+          {
+            indexed: false,
+            internalType: "uint256",
+            name: "tokensSold",
+            type: "uint256",
+          },
+          {
+            indexed: false,
+            internalType: "uint256",
+            name: "ethBought",
+            type: "uint256",
+          },
+        ],
+        name: "TokenToEthSwap",
+        type: "event",
+      },
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: true,
+            internalType: "address",
+            name: "operator",
+            type: "address",
+          },
+          {
+            indexed: true,
+            internalType: "address",
+            name: "tokenAddressSold",
+            type: "address",
+          },
+          {
+            indexed: true,
+            internalType: "address",
+            name: "tokenAddressBought",
+            type: "address",
+          },
+          {
+            indexed: false,
+            internalType: "uint256",
+            name: "tokensSold",
+            type: "uint256",
+          },
+        ],
+        name: "TokenToTokenSwap",
+        type: "event",
+      },
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: true,
+            internalType: "address",
             name: "from",
             type: "address",
           },
@@ -264,6 +407,25 @@ const deployedContracts = {
   },
   Factory: {
     abi: [
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: true,
+            internalType: "address",
+            name: "tokenAddress",
+            type: "address",
+          },
+          {
+            indexed: true,
+            internalType: "address",
+            name: "exchangeAddress",
+            type: "address",
+          },
+        ],
+        name: "ExchangeCreated",
+        type: "event",
+      },
       {
         inputs: [
           { internalType: "address", name: "_tokenAddress", type: "address" },
