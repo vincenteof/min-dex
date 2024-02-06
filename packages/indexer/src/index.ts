@@ -2,7 +2,11 @@ import { ethers } from 'ethers'
 import { config } from 'dotenv'
 import Core from '@web3-from-scratch/core-abi'
 import { provider } from './lib/ethers'
-import { handleCreateExchangeEvent } from './handler'
+import {
+  handleCreateExchangeEvent,
+  handleLiquidityAddedEvent,
+  handleLiquidityRemovedEvent,
+} from './handler'
 
 config()
 
@@ -14,9 +18,41 @@ const factoryContract = new ethers.Contract(
   provider
 )
 
-factoryContract.on('ExchangeCreated', (tokenAddress, exchangeAddress) => {
+factoryContract.on('ExchangeCreated', (tokenAddress: string, exchangeAddress: string) => {
   console.log(
     `Exchange Created - Token: ${tokenAddress}, Exchange: ${exchangeAddress}`
   )
   handleCreateExchangeEvent(tokenAddress, exchangeAddress)
 })
+
+factoryContract.on(
+  'LiquidityAdded',
+  (exchangeAddress: string, tokenAddress: string, providerAddress: string, tokenAmount: BigInt, ethAmount: BigInt) => {
+    console.log(
+      `Exchange Created - Token: ${tokenAddress}, Exchange: ${exchangeAddress}`
+    )
+    handleLiquidityAddedEvent(
+      tokenAddress,
+      exchangeAddress,
+      providerAddress,
+      tokenAmount,
+      ethAmount
+    )
+  }
+)
+
+factoryContract.on(
+  'LiquidityRemoved',
+  (exchangeAddress: string, tokenAddress: string, providerAddress: string, tokenAmount: BigInt, ethAmount: BigInt) => {
+    console.log(
+      `Exchange Created - Token: ${tokenAddress}, Exchange: ${exchangeAddress}`
+    )
+    handleLiquidityRemovedEvent(
+      tokenAddress,
+      exchangeAddress,
+      providerAddress,
+      tokenAmount,
+      ethAmount
+    )
+  }
+)

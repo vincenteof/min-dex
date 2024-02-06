@@ -32,8 +32,8 @@ model LiquidityEvent {
   exchange        Exchange @relation(fields: [exchangeId], references: [exchangeId])
   exchangeId      Int
   providerAddress String
-  tokenAmount     Float
-  ethAmount       Float
+  tokenAmount     String
+  ethAmount       String
   eventType       String
   timestamp       DateTime @default(now())
 }
@@ -43,8 +43,8 @@ model SwapEvent {
   exchange        Exchange @relation(fields: [exchangeId], references: [exchangeId])
   exchangeId      Int
   userAddress     String
-  ethSold         Float?   @default(0)
-  tokensSold      Float?   @default(0)
-  tokensBought    Float
+  ethSold         String
+  tokensSold      String
+  tokensBought    String
   timestamp       DateTime @default(now())
 }
