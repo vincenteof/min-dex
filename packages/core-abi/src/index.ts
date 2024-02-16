@@ -74,6 +74,18 @@ const deployedContracts = {
           {
             indexed: true,
             internalType: "address",
+            name: "exchangeAddress",
+            type: "address",
+          },
+          {
+            indexed: true,
+            internalType: "address",
+            name: "tokenAddress",
+            type: "address",
+          },
+          {
+            indexed: true,
+            internalType: "address",
             name: "provider",
             type: "address",
           },
@@ -96,6 +108,18 @@ const deployedContracts = {
       {
         anonymous: false,
         inputs: [
+          {
+            indexed: true,
+            internalType: "address",
+            name: "exchangeAddress",
+            type: "address",
+          },
+          {
+            indexed: true,
+            internalType: "address",
+            name: "tokenAddress",
+            type: "address",
+          },
           {
             indexed: true,
             internalType: "address",

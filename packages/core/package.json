@@ -18,7 +18,9 @@
     "@nomicfoundation/hardhat-ethers": "^3.0.5",
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
     "chai": "^4.3.10",
+    "dotenv": "^16.4.1",
     "ethers": "^6.1.0",
-    "hardhat": "^2.19.2"
+    "hardhat": "^2.19.2",
+    "hardhat-ethernal": "^3.2.5"
   }
 }

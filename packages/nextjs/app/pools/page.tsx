@@ -2,10 +2,17 @@
 
 import { Button } from '@/components/ui/button'
 import InboxIcon from '@/components/icon/inbox'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { useAccount, useContractRead, useNetwork } from 'wagmi'
 import { useConnectModal } from '@rainbow-me/rainbowkit'
 import Core from '@web3-from-scratch/core-abi'
 import Contracts from '@/lib/contracts'
+import { useRouter } from 'next/navigation'
 
 export default function Pools() {
   const { isConnected } = useAccount()
@@ -20,12 +27,28 @@ export default function Pools() {
     args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
   })
   console.log('data: ', data)
+  const router = useRouter()
+
 
   return (
     <section className="w-full max-w-3xl pt-12 flex flex-col gap-6">
       <div className="w-full flex items-center justify-between">
         <div className="text-3xl font-bold">流动池</div>
-        <Button>+ 新的仓位</Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Button>+ 新建</Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem
+              onClick={() => {
+                router.push('/create-exchange')
+              }}
+            >
+              交易所
+            </DropdownMenuItem>
+            <DropdownMenuItem>仓位</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <div className="border rounded-2xl flex flex-col">
         <div className="flex flex-col items-center justify-center m-auto max-w-xs">

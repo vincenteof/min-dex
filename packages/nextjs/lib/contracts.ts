@@ -7,7 +7,7 @@ const contracts: {
 } = {
   31337: {
     Factory: {
-      address: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
+      address: '0xF4B4fCFC32BE102D0065D0E5F5cE891A49c5DfE8',
     },
   },
 }
