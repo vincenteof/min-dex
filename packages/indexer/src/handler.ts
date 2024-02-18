@@ -11,7 +11,7 @@ async function fetchTokenDetail(tokenAddress: string) {
       tokenContract.symbol(),
     ])
     return { name, symbol }
-  } catch (err) {
+  } catch (err: any) {
     console.warn(
       `Could not fetch details for token at ${tokenAddress}: ${err.message}`
     )

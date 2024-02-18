@@ -10,7 +10,7 @@ import {
 
 config()
 
-const CONTRACT_ADDRESS = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
+const CONTRACT_ADDRESS = '0xF4B4fCFC32BE102D0065D0E5F5cE891A49c5DfE8'
 
 const factoryContract = new ethers.Contract(
   CONTRACT_ADDRESS,
@@ -25,34 +25,35 @@ factoryContract.on('ExchangeCreated', (tokenAddress: string, exchangeAddress: st
   handleCreateExchangeEvent(tokenAddress, exchangeAddress)
 })
 
-factoryContract.on(
-  'LiquidityAdded',
-  (exchangeAddress: string, tokenAddress: string, providerAddress: string, tokenAmount: BigInt, ethAmount: BigInt) => {
-    console.log(
-      `Exchange Created - Token: ${tokenAddress}, Exchange: ${exchangeAddress}`
-    )
-    handleLiquidityAddedEvent(
-      tokenAddress,
-      exchangeAddress,
-      providerAddress,
-      tokenAmount,
-      ethAmount
-    )
-  }
-)
+// todo: these events is not triggered by Factory contract
+// factoryContract.on(
+//   'LiquidityAdded',
+//   (exchangeAddress: string, tokenAddress: string, providerAddress: string, tokenAmount: BigInt, ethAmount: BigInt) => {
+//     console.log(
+//       `Exchange Created - Token: ${tokenAddress}, Exchange: ${exchangeAddress}`
+//     )
+//     handleLiquidityAddedEvent(
+//       tokenAddress,
+//       exchangeAddress,
+//       providerAddress,
+//       tokenAmount,
+//       ethAmount
+//     )
+//   }
+// )
 
-factoryContract.on(
-  'LiquidityRemoved',
-  (exchangeAddress: string, tokenAddress: string, providerAddress: string, tokenAmount: BigInt, ethAmount: BigInt) => {
-    console.log(
-      `Exchange Created - Token: ${tokenAddress}, Exchange: ${exchangeAddress}`
-    )
-    handleLiquidityRemovedEvent(
-      tokenAddress,
-      exchangeAddress,
-      providerAddress,
-      tokenAmount,
-      ethAmount
-    )
-  }
-)
+// factoryContract.on(
+//   'LiquidityRemoved',
+//   (exchangeAddress: string, tokenAddress: string, providerAddress: string, tokenAmount: BigInt, ethAmount: BigInt) => {
+//     console.log(
+//       `Exchange Created - Token: ${tokenAddress}, Exchange: ${exchangeAddress}`
+//     )
+//     handleLiquidityRemovedEvent(
+//       tokenAddress,
+//       exchangeAddress,
+//       providerAddress,
+//       tokenAmount,
+//       ethAmount
+//     )
+//   }
+// )

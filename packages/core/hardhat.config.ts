@@ -15,6 +15,10 @@ const hardhatConfig: HardhatUserConfig = {
           balance: '100000000000000000000',
         },
       ],
+      mining: {
+        auto: true,
+        interval: 3 * 60 * 1000, // should be less then 5 minutes to make event subscription work
+      },
     },
   },
   ethernal: {
