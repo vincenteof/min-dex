@@ -45,24 +45,33 @@ importers:
 
   packages/core-abi: {}
 
-  packages/indexer:
+  packages/db:
     dependencies:
       '@prisma/client':
         specifier: 5.9.1
         version: 5.9.1(prisma@5.9.1)
+      dotenv:
+        specifier: ^16.4.1
+        version: 16.4.1
+    devDependencies:
+      prisma:
+        specifier: ^5.9.1
+        version: 5.9.1
+
+  packages/indexer:
+    dependencies:
       '@web3-from-scratch/core-abi':
         specifier: workspace:*
         version: link:../core-abi
+      '@web3-from-scratch/db':
+        specifier: workspace:*
+        version: link:../db
       dotenv:
         specifier: ^16.4.1
         version: 16.4.1
       ethers:
         specifier: ^6.1.0
         version: 6.9.0
-    devDependencies:
-      prisma:
-        specifier: ^5.9.1
-        version: 5.9.1
 
   packages/nextjs:
     dependencies:

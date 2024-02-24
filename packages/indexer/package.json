@@ -8,12 +8,9 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "dependencies": {
-    "@prisma/client": "5.9.1",
     "@web3-from-scratch/core-abi": "workspace:*",
+    "@web3-from-scratch/db": "workspace:*",
     "dotenv": "^16.4.1",
     "ethers": "^6.1.0"
-  },
-  "devDependencies": {
-    "prisma": "^5.9.1"
   }
 }
