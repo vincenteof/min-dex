@@ -20,6 +20,8 @@ import { z } from 'zod'
 import Core from '@web3-from-scratch/core-abi'
 import Contracts from '@/lib/contracts'
 import { useToast } from '@/components/ui/use-toast'
+import { ToastAction } from '@/components/ui/toast'
+import { useRouter } from 'next/navigation'
 
 const formSchema = z.object({
   tokenAddress: z
@@ -33,6 +35,7 @@ const formSchema = z.object({
 })
 
 export default function CreateExchange() {
+  const router = useRouter()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -48,13 +51,26 @@ export default function CreateExchange() {
     functionName: 'createExchange',
     onSuccess: () => {
       toast({
-        description: '交易所创建成功',
+        title: '交易所创建成功',
+        description: `对应代币已关联`,
+        action: (
+          <ToastAction
+            altText="添加流动性"
+            onClick={() => {
+              router.push('/pools')
+            }}
+          >
+            添加流动性
+          </ToastAction>
+        ),
       })
     },
     onError: (err) => {
+      console.log(err)
       toast({
         variant: 'destructive',
-        description: '交易所创建失败',
+        title: '交易所创建失败',
+        description: err?.message
       })
     },
   })

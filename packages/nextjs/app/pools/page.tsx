@@ -46,7 +46,13 @@ export default function Pools() {
             >
               交易所
             </DropdownMenuItem>
-            <DropdownMenuItem>仓位</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                router.push('/add')
+              }}
+            >
+              仓位
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

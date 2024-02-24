@@ -7,6 +7,16 @@ const nextConfig = {
     return config
   },
   transpilePackages: ['@web3-from-scratch/core-abi'],
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'raw.githubusercontent.com',
+        port: '',
+        pathname: '/Uniswap/**',
+      },
+    ],
+  },
 }
 
 module.exports = nextConfig
