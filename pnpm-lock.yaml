@@ -111,6 +111,9 @@ importers:
       '@web3-from-scratch/core-abi':
         specifier: workspace:*
         version: link:../core-abi
+      '@web3-from-scratch/db':
+        specifier: workspace:*
+        version: link:../db
       abitype:
         specifier: ^0.10.3
         version: 0.10.3(typescript@5.3.3)(zod@3.22.4)

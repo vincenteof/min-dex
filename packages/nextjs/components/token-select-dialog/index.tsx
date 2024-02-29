@@ -14,33 +14,20 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import clsx from 'clsx'
-
-const tokens = [
-  {
-    tokenAddress: '0x1',
-    tokenName: 'PengPengCoin',
-    tokenSymbol: 'PPC',
-    id: 1,
-  },
-  {
-    tokenAddress: '0x2',
-    tokenName: 'PengPengCoin2',
-    tokenSymbol: 'PPC2',
-    id: 2,
-  },
-]
+import { Token } from '@web3-from-scratch/db'
 
 export default function TokenSelectDialog(props: {
   onChange?: (tokenAddress: string) => void
   value?: string
+  tokens: Token[]
 }) {
-  const { onChange, value } = props
+  const { onChange, value, tokens } = props
   const targetToken = tokens.find((token) => token.tokenAddress === value)
   return (
     <Dialog>
       <DialogTrigger asChild>
         <div>
-          <Select value={targetToken?.tokenSymbol}>
+          <Select value={targetToken?.tokenSymbol ?? undefined}>
             <SelectTrigger>
               <SelectValue placeholder="选择代币">
                 {targetToken?.tokenSymbol}
@@ -62,7 +49,7 @@ export default function TokenSelectDialog(props: {
             {tokens.map((token) => {
               const isSelected = value && token.tokenAddress === value
               return (
-                <DialogClose key={token.id} asChild>
+                <DialogClose key={token.tokenId} asChild>
                   <div
                     className={clsx(
                       'p-4 rounded-sm flex hover:bg-slate-100 hover:cursor-pointer',

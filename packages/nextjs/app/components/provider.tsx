@@ -1,5 +1,7 @@
 'use client'
 
+// todo: update wagmi version
+
 import { useState, useEffect } from 'react'
 import {
   RainbowKitProvider,

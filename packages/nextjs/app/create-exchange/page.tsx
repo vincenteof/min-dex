@@ -80,7 +80,8 @@ export default function CreateExchange() {
       args: [values.tokenAddress as `0x${string}`],
     })
   }
-
+  // todo: how to add wait after indexer write data to postgres?
+  // todo: add validation for input erc20 token address
   return (
     <section className="w-full max-w-3xl pt-12 flex flex-col gap-6">
       <Form {...form}>
