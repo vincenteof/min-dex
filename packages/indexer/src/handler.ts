@@ -65,6 +65,7 @@ export async function handleLiquidityAddedEvent(
   exchangeAddress: string,
   tokenAddress: string,
   providerAddress: string,
+  liquidity: BigInt,
   tokenAmount: BigInt,
   ethAmount: BigInt
 ) {
@@ -73,6 +74,7 @@ export async function handleLiquidityAddedEvent(
     exchangeAddress,
     tokenAddress,
     providerAddress,
+    liquidity,
     tokenAmount,
     ethAmount
   )
@@ -80,16 +82,18 @@ export async function handleLiquidityAddedEvent(
 
 export async function handleLiquidityRemovedEvent(
   exchangeAddress: string,
-  tokenAddrss: string,
+  tokenAddress: string,
   providerAddress: string,
+  liquidity: BigInt,
   tokenAmount: BigInt,
   ethAmount: BigInt
 ) {
   await handleLiquidityEvent(
     'LiquidityRemoved',
     exchangeAddress,
-    tokenAddrss,
+    tokenAddress,
     providerAddress,
+    liquidity,
     tokenAmount,
     ethAmount
   )
@@ -100,6 +104,7 @@ async function handleLiquidityEvent(
   exchangeAddress: string,
   tokenAddress: string,
   providerAddress: string,
+  liquidity: BigInt,
   tokenAmount: BigInt,
   ethAmount: BigInt
 ) {
@@ -123,6 +128,7 @@ async function handleLiquidityEvent(
         data: {
           exchangeId: exchange.exchangeId,
           providerAddress,
+          liquidity: liquidity.toString(),
           tokenAmount: tokenAmount.toString(),
           ethAmount: ethAmount.toString(),
           eventType,

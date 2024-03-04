@@ -92,6 +92,12 @@ const deployedContracts = {
           {
             indexed: false,
             internalType: "uint256",
+            name: "liquidity",
+            type: "uint256",
+          },
+          {
+            indexed: false,
+            internalType: "uint256",
             name: "tokenAmount",
             type: "uint256",
           },
@@ -125,6 +131,12 @@ const deployedContracts = {
             internalType: "address",
             name: "provider",
             type: "address",
+          },
+          {
+            indexed: false,
+            internalType: "uint256",
+            name: "liquidity",
+            type: "uint256",
           },
           {
             indexed: false,

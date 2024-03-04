@@ -27,6 +27,7 @@ contract Exchange is ERC20 {
         address indexed exchangeAddress,
         address indexed tokenAddress,
         address indexed provider,
+        uint256 liquidity,
         uint256 tokenAmount,
         uint256 ethAmount
     );
@@ -34,6 +35,7 @@ contract Exchange is ERC20 {
         address indexed exchangeAddress,
         address indexed tokenAddress,
         address indexed provider,
+        uint256 liquidity,
         uint256 tokenAmount,
         uint256 ethAmount
     );
@@ -74,7 +76,7 @@ contract Exchange is ERC20 {
             token.transferFrom(msg.sender, address(this), _tokenAmount);
             uint256 liquidity = address(this).balance;
             _mint(msg.sender, liquidity);
-            emit LiquidityAdded(address(this), tokenAddress, msg.sender, _tokenAmount, msg.value);
+            emit LiquidityAdded(address(this), tokenAddress, msg.sender, liquidity, _tokenAmount, msg.value);
             return liquidity;
         } else {
             uint256 ethReserve = address(this).balance - msg.value;
@@ -85,7 +87,7 @@ contract Exchange is ERC20 {
             token.transferFrom(msg.sender, address(this), tokenAmount);
             uint256 liquidity = (totalSupply() * msg.value) / ethReserve;
             _mint(msg.sender, liquidity);
-            emit LiquidityAdded(address(this), tokenAddress, msg.sender, _tokenAmount, msg.value);
+            emit LiquidityAdded(address(this), tokenAddress, msg.sender, liquidity, _tokenAmount, msg.value);
             return liquidity;
         }
     }
@@ -100,7 +102,7 @@ contract Exchange is ERC20 {
         _burn(msg.sender, _amount);
         payable(msg.sender).transfer(ethAmount);
         IERC20(tokenAddress).transfer(msg.sender, tokenAmount);
-        emit LiquidityRemoved(address(this), tokenAddress, msg.sender, tokenAmount, ethAmount);
+        emit LiquidityRemoved(address(this), tokenAddress, msg.sender, _amount, tokenAmount, ethAmount);
         return (ethAmount, tokenAmount);
     }
 

@@ -18,42 +18,59 @@ const factoryContract = new ethers.Contract(
   provider
 )
 
-factoryContract.on('ExchangeCreated', (tokenAddress: string, exchangeAddress: string) => {
-  console.log(
-    `Exchange Created - Token: ${tokenAddress}, Exchange: ${exchangeAddress}`
-  )
-  handleCreateExchangeEvent(tokenAddress, exchangeAddress)
-})
-
-// todo: these events is not triggered by Factory contract
-// factoryContract.on(
-//   'LiquidityAdded',
-//   (exchangeAddress: string, tokenAddress: string, providerAddress: string, tokenAmount: BigInt, ethAmount: BigInt) => {
-//     console.log(
-//       `Exchange Created - Token: ${tokenAddress}, Exchange: ${exchangeAddress}`
-//     )
-//     handleLiquidityAddedEvent(
-//       tokenAddress,
-//       exchangeAddress,
-//       providerAddress,
-//       tokenAmount,
-//       ethAmount
-//     )
-//   }
-// )
-
-// factoryContract.on(
-//   'LiquidityRemoved',
-//   (exchangeAddress: string, tokenAddress: string, providerAddress: string, tokenAmount: BigInt, ethAmount: BigInt) => {
-//     console.log(
-//       `Exchange Created - Token: ${tokenAddress}, Exchange: ${exchangeAddress}`
-//     )
-//     handleLiquidityRemovedEvent(
-//       tokenAddress,
-//       exchangeAddress,
-//       providerAddress,
-//       tokenAmount,
-//       ethAmount
-//     )
-//   }
-// )
+factoryContract.on(
+  'ExchangeCreated',
+  (tokenAddress: string, exchangeAddress: string) => {
+    console.log(
+      `Exchange Created - Token: ${tokenAddress}, Exchange: ${exchangeAddress}`
+    )
+    handleCreateExchangeEvent(tokenAddress, exchangeAddress)
+    const exchangeContract = new ethers.Contract(
+      exchangeAddress,
+      Core.Exchange.abi,
+      provider
+    )
+    exchangeContract.on(
+      'LiquidityAdded',
+      (
+        _0: string,
+        _1: string,
+        actionProvider: string,
+        liquidity: BigInt,
+        tokenAmount: BigInt,
+        ethAmount: BigInt
+      ) => {
+        console.log('Liquidity Added')
+        handleLiquidityAddedEvent(
+          exchangeAddress,
+          tokenAddress,
+          actionProvider,
+          liquidity,
+          tokenAmount,
+          ethAmount
+        )
+      }
+    )
+    exchangeContract.on(
+      'LiquidityRemoved',
+      (
+        _0: string,
+        _1: string,
+        actionProvider: string,
+        liquidity: BigInt,
+        tokenAmount: BigInt,
+        ethAmount: BigInt
+      ) => {
+        console.log('Liquidity Removed')
+        handleLiquidityRemovedEvent(
+          exchangeAddress,
+          tokenAddress,
+          actionProvider,
+          liquidity,
+          tokenAmount,
+          ethAmount
+        )
+      }
+    )
+  }
+)
