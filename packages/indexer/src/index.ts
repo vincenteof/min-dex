@@ -36,9 +36,9 @@ factoryContract.on(
         _0: string,
         _1: string,
         actionProvider: string,
-        liquidity: BigInt,
-        tokenAmount: BigInt,
-        ethAmount: BigInt
+        liquidity: bigint,
+        tokenAmount: bigint,
+        ethAmount: bigint
       ) => {
         console.log('Liquidity Added')
         handleLiquidityAddedEvent(
@@ -57,9 +57,9 @@ factoryContract.on(
         _0: string,
         _1: string,
         actionProvider: string,
-        liquidity: BigInt,
-        tokenAmount: BigInt,
-        ethAmount: BigInt
+        liquidity: bigint,
+        tokenAmount: bigint,
+        ethAmount: bigint
       ) => {
         console.log('Liquidity Removed')
         handleLiquidityRemovedEvent(

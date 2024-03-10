@@ -42,16 +42,16 @@ const formSchema = z.object({
   ethAmount: z.string(),
 })
 
-
 // todo: add defensive operation and enhance ux
 export default function AddLiquidityForm(props: {
   tokens: (Token & { exchanges: Exchange[] })[]
+  defaultTokenAddress?: string
 }) {
-  const { tokens } = props
+  const { tokens, defaultTokenAddress } = props
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      tokenAddress: '',
+      tokenAddress: defaultTokenAddress,
       tokenAmount: '0',
       ethAmount: '0',
     },
@@ -87,8 +87,11 @@ export default function AddLiquidityForm(props: {
     address: tokenAddressValue,
     abi: erc20ABI,
     functionName: 'allowance',
-    args: [currentAccount.address as `0x${string}`, exchangeAddress as `0x${string}`],
-    enabled: Boolean(currentAccount.address && exchangeAddress) 
+    args: [
+      currentAccount.address as `0x${string}`,
+      exchangeAddress as `0x${string}`,
+    ],
+    enabled: Boolean(currentAccount.address && exchangeAddress),
   })
 
   const tokenAmountValue = form.watch('tokenAmount') || '0'
@@ -97,7 +100,7 @@ export default function AddLiquidityForm(props: {
     abi: erc20ABI,
     functionName: 'approve',
     args: [exchangeAddress as `0x${string}`, parseEther(tokenAmountValue)],
-    enabled: Boolean(exchangeAddress)
+    enabled: Boolean(exchangeAddress),
   })
 
   const {

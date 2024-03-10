@@ -65,9 +65,9 @@ export async function handleLiquidityAddedEvent(
   exchangeAddress: string,
   tokenAddress: string,
   providerAddress: string,
-  liquidity: BigInt,
-  tokenAmount: BigInt,
-  ethAmount: BigInt
+  liquidity: bigint,
+  tokenAmount: bigint,
+  ethAmount: bigint
 ) {
   await handleLiquidityEvent(
     'LiquidityAdded',
@@ -84,9 +84,9 @@ export async function handleLiquidityRemovedEvent(
   exchangeAddress: string,
   tokenAddress: string,
   providerAddress: string,
-  liquidity: BigInt,
-  tokenAmount: BigInt,
-  ethAmount: BigInt
+  liquidity: bigint,
+  tokenAmount: bigint,
+  ethAmount: bigint
 ) {
   await handleLiquidityEvent(
     'LiquidityRemoved',
@@ -104,9 +104,9 @@ async function handleLiquidityEvent(
   exchangeAddress: string,
   tokenAddress: string,
   providerAddress: string,
-  liquidity: BigInt,
-  tokenAmount: BigInt,
-  ethAmount: BigInt
+  liquidity: bigint,
+  tokenAmount: bigint,
+  ethAmount: bigint
 ) {
   try {
     await prisma.$transaction(async (tx) => {
@@ -120,7 +120,7 @@ async function handleLiquidityEvent(
         console.error(
           `Exchange not found or token address mismatch for exchange: ${exchangeAddress} and token: ${tokenAddress}`
         )
-        return 
+        return
       }
 
       // Assuming validation passed and you want to proceed with creating the liquidity event record
