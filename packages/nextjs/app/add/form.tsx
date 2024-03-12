@@ -1,7 +1,6 @@
 'use client'
 
 import TokenSelectDialog from '@/components/token-select-dialog'
-import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
@@ -16,18 +15,15 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Exchange, Token } from '@web3-from-scratch/db'
 import { useForm } from 'react-hook-form'
 import { ContractFunctionExecutionError, isAddress, parseEther } from 'viem'
-import {
-  erc20ABI,
-  useAccount,
-  useContractRead,
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
-} from 'wagmi'
+import { useAccount, useContractWrite, useWaitForTransaction } from 'wagmi'
 import { z } from 'zod'
 import Core from '@web3-from-scratch/core-abi'
 import { useEffect, useState } from 'react'
 import { toast } from '@/components/ui/use-toast'
+import { Skeleton } from '@/components/ui/skeleton'
+import useApproveTokenAllowance from '@/hooks/useApproveTokenAllowance'
+import OnChainOpButton from '@/components/OnChainOpButton'
+import { useRouter } from 'next/navigation'
 
 const formSchema = z.object({
   tokenAddress: z
@@ -42,12 +38,13 @@ const formSchema = z.object({
   ethAmount: z.string(),
 })
 
-// todo: add defensive operation and enhance ux
+// todo: add defensive operation
 export default function AddLiquidityForm(props: {
   tokens: (Token & { exchanges: Exchange[] })[]
   defaultTokenAddress?: string
 }) {
   const { tokens, defaultTokenAddress } = props
+  const router = useRouter()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -59,7 +56,11 @@ export default function AddLiquidityForm(props: {
   const [exchangeAddress, setExchangeAddress] = useState<
     `0x${string}` | undefined
   >(undefined)
-  const { writeAsync } = useContractWrite({
+  const {
+    writeAsync,
+    data,
+    isLoading: addLiquidityLoading,
+  } = useContractWrite({
     abi: Core.Exchange.abi,
     functionName: 'addLiquidity',
     address: exchangeAddress,
@@ -73,6 +74,18 @@ export default function AddLiquidityForm(props: {
     },
   })
 
+  const { isLoading: addLiquidityTxLoading } = useWaitForTransaction({
+    hash: data?.hash,
+    onSuccess() {
+      toast({
+        description: '流动性添加成功',
+      })
+      setTimeout(() => {
+        router.push('/pools')
+      }, 1500)
+    },
+  })
+
   const currentAccount = useAccount()
   const tokenAddressValue = form.watch('tokenAddress') as `0x${string}`
   useEffect(() => {
@@ -83,46 +96,42 @@ export default function AddLiquidityForm(props: {
     )
   }, [tokenAddressValue, tokens])
 
-  const { data: allowance, refetch } = useContractRead({
-    address: tokenAddressValue,
-    abi: erc20ABI,
-    functionName: 'allowance',
-    args: [
-      currentAccount.address as `0x${string}`,
-      exchangeAddress as `0x${string}`,
-    ],
-    enabled: Boolean(currentAccount.address && exchangeAddress),
-  })
-
   const tokenAmountValue = form.watch('tokenAmount') || '0'
-  const { config } = usePrepareContractWrite({
-    address: tokenAddressValue,
-    abi: erc20ABI,
-    functionName: 'approve',
-    args: [exchangeAddress as `0x${string}`, parseEther(tokenAmountValue)],
-    enabled: Boolean(exchangeAddress),
-  })
+  const { allowance, approve, isApproving } = useApproveTokenAllowance(
+    currentAccount.address,
+    tokenAddressValue,
+    exchangeAddress,
+    tokenAmountValue
+  )
 
-  const {
-    data: writeContractResult,
-    writeAsync: approveAsync,
-    error,
-  } = useContractWrite(config)
+  if (isApproving) {
+    return (
+      <div className="flex flex-col space-y-9">
+        <div>
+          <Skeleton className="h-[20px] mb-2 w-1/3" />
+          <Skeleton className="h-[40px] w-full" />
+        </div>
+        <div>
+          <Skeleton className="h-[20px] mb-2 w-1/3" />
+          <Skeleton className="h-[40px] w-full" />
+        </div>
+        <div>
+          <Skeleton className="h-[20px] mb-2 w-1/3" />
+          <Skeleton className="h-[40px] w-full" />
+        </div>
+        <Skeleton className="h-[44px] w-full" />
+      </div>
+    )
+  }
 
-  const { isLoading: isApproving } = useWaitForTransaction({
-    hash: writeContractResult ? writeContractResult.hash : undefined,
-    onSuccess(data) {
-      refetch()
-    },
-  })
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit((values) => {
-          if (!allowance) {
-            approveAsync?.()
-            return Promise.reject('No allowance for token')
+          if (!allowance || allowance < parseEther(tokenAmountValue)) {
+            approve?.()
+            throw new Error('No sufficient allowance for token')
           }
           return writeAsync({
             args: [parseEther(values.tokenAmount)],
@@ -177,14 +186,17 @@ export default function AddLiquidityForm(props: {
             </FormItem>
           )}
         />
-        <Button
+        <OnChainOpButton
           type="submit"
           size="lg"
           className="w-full"
-          loading={form.formState.isSubmitting}
+          isSubmitting={addLiquidityLoading}
+          isWaitingForConfirmation={addLiquidityTxLoading}
+          submittingContent="提交中..."
+          waitingContent="等待交易完成..."
         >
           提交
-        </Button>
+        </OnChainOpButton>
       </form>
     </Form>
   )

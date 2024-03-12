@@ -1,12 +1,16 @@
 import { Button } from '@/components/ui/button'
 import { getLiquidityPositionsForAddress } from '@/db/liquidity'
 import Link from 'next/link'
+import Empty from './empty'
 
 export default async function PositionsList(props: { address?: string }) {
   const { address } = props
   const positions = address
     ? await getLiquidityPositionsForAddress(address)
     : []
+  if (!positions.length) {
+    return <Empty />
+  }
   return (
     <div className="w-full p-3">
       <h4 className="px-2 mb-1 text-sm">您的仓位({positions.length})</h4>
@@ -35,10 +39,12 @@ function PositionItem(props: { symbol: string; address: string }) {
         <div className="text-sm font-light">0.3%</div>
       </div>
       <div className="flex gap-2">
-        <Button variant="outline" asChild>
-          <Link href={{ pathname: '/add', query: { tokenAddress: address } }}>添加</Link>
+        <Button variant="outline">
+          <Link href={{ pathname: '/add', query: { tokenAddress: address } }}>
+            添加
+          </Link>
         </Button>
-        <Button variant="outline" asChild>
+        <Button variant="outline">
           <Link href="/remove">移除</Link>
         </Button>
       </div>
