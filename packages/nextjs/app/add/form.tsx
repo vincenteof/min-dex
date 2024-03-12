@@ -38,7 +38,7 @@ const formSchema = z.object({
   ethAmount: z.string(),
 })
 
-// todo: add defensive operation
+// todo: default value and schema validation
 export default function AddLiquidityForm(props: {
   tokens: (Token & { exchanges: Exchange[] })[]
   defaultTokenAddress?: string
@@ -124,7 +124,6 @@ export default function AddLiquidityForm(props: {
     )
   }
 
-
   return (
     <Form {...form}>
       <form
@@ -153,7 +152,7 @@ export default function AddLiquidityForm(props: {
                   tokens={tokens}
                 />
               </FormControl>
-              <FormDescription>请选择想添加的代币</FormDescription>
+              <FormDescription>你可以选择对应的代币或直接输入其合约地址</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -165,9 +164,9 @@ export default function AddLiquidityForm(props: {
             <FormItem>
               <FormLabel>代币数量</FormLabel>
               <FormControl>
-                <Input placeholder="0" {...field} />
+                <Input placeholder="0" type="number" {...field} />
               </FormControl>
-              <FormDescription>请输入想添加的代币数量</FormDescription>
+              <FormDescription>本次流动性提供所对应的代币数量</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -179,9 +178,9 @@ export default function AddLiquidityForm(props: {
             <FormItem>
               <FormLabel>以太币数量</FormLabel>
               <FormControl>
-                <Input placeholder="0" {...field} />
+                <Input placeholder="0" type='number' {...field} />
               </FormControl>
-              <FormDescription>请输入想添加的以太币数量</FormDescription>
+              <FormDescription>本次流动性提供所对应的以太币数量</FormDescription>
               <FormMessage />
             </FormItem>
           )}
