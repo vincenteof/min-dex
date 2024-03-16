@@ -22,9 +22,10 @@ import {
   base,
   zora,
   goerli,
-  hardhat
+  hardhat,
 } from 'wagmi/chains'
 import { publicProvider } from 'wagmi/providers/public'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [
@@ -72,13 +73,17 @@ const wagmiConfig = createConfig({
   webSocketPublicClient,
 })
 
+const queryClient = new QueryClient()
+
 export function Provider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
   return (
     <WagmiConfig config={wagmiConfig}>
       <RainbowKitProvider chains={chains} appInfo={demoAppInfo}>
-        {mounted && children}
+        <QueryClientProvider client={queryClient}>
+          {mounted && children}
+        </QueryClientProvider>
       </RainbowKitProvider>
     </WagmiConfig>
   )

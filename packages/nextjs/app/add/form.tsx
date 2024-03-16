@@ -18,12 +18,13 @@ import { ContractFunctionExecutionError, isAddress, parseEther } from 'viem'
 import { useAccount, useContractWrite, useWaitForTransaction } from 'wagmi'
 import { z } from 'zod'
 import Core from '@web3-from-scratch/core-abi'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { toast } from '@/components/ui/use-toast'
 import { Skeleton } from '@/components/ui/skeleton'
 import useApproveTokenAllowance from '@/hooks/useApproveTokenAllowance'
-import OnChainOpButton from '@/components/OnChainOpButton'
+import OnChainOpButton from '@/components/on-chain-op-button'
 import { useRouter } from 'next/navigation'
+import { useMutation } from '@tanstack/react-query'
 
 const formSchema = z.object({
   tokenAddress: z
@@ -53,9 +54,25 @@ export default function AddLiquidityForm(props: {
       ethAmount: '0',
     },
   })
-  const [exchangeAddress, setExchangeAddress] = useState<
-    `0x${string}` | undefined
-  >(undefined)
+
+  const currentAccount = useAccount()
+  const tokenAddressValue = form.watch('tokenAddress') as `0x${string}`
+  const tokenDetail = useMemo(() => {
+    return tokens.find((x) => x.tokenAddress === tokenAddressValue)
+  }, [tokenAddressValue, tokens])
+  const exchangeAddress = tokenDetail?.exchanges?.[0]?.exchangeAddress as
+    | `0x${string}`
+    | undefined
+
+  const tokenAmountValue = form.watch('tokenAmount') ?? '0'
+
+  const { allowance, approve, isApproving } = useApproveTokenAllowance(
+    currentAccount.address,
+    tokenAddressValue,
+    exchangeAddress,
+    tokenAmountValue
+  )
+
   const {
     writeAsync,
     data,
@@ -86,23 +103,65 @@ export default function AddLiquidityForm(props: {
     },
   })
 
-  const currentAccount = useAccount()
-  const tokenAddressValue = form.watch('tokenAddress') as `0x${string}`
-  useEffect(() => {
-    const tokenDetail = tokens.find((x) => x.tokenAddress === tokenAddressValue)
-    console.log('tokenDetail: ', tokenDetail)
-    setExchangeAddress(
-      tokenDetail?.exchanges?.[0]?.exchangeAddress as `0x${string}`
-    )
-  }, [tokenAddressValue, tokens])
-
-  const tokenAmountValue = form.watch('tokenAmount') || '0'
-  const { allowance, approve, isApproving } = useApproveTokenAllowance(
-    currentAccount.address,
-    tokenAddressValue,
-    exchangeAddress,
-    tokenAmountValue
-  )
+  const { mutate: getMatchedEthAmount } = useMutation({
+    mutationFn: async (params: { tokenId: string; tokenAmount: string }) => {
+      const queryString = new URLSearchParams(params).toString()
+      const res = await fetch(
+        `/api/liquidity/matched-eth-amount?${queryString}`
+      )
+      if (!res.ok) {
+        throw new Error('Network response is not ok')
+      }
+      return res.json()
+    },
+    onSuccess: (res) => {
+      if (res.status === 'success') {
+        form.setValue('ethAmount', res.data)
+      } else {
+        toast({
+          variant: 'destructive',
+          title: '获取对应以太币数量失败',
+          description: res.error.message,
+        })
+      }
+    },
+    onError: (res) => {
+      toast({
+        variant: 'destructive',
+        title: '获取对应以太币数量失败',
+      })
+    },
+  })
+  const { mutate: getMatchedTokenAmount } = useMutation({
+    mutationFn: async (params: { tokenId: string; ethAmount: string }) => {
+      const queryString = new URLSearchParams(params).toString()
+      const res = await fetch(
+        `/api/liquidity/matched-token-amount?${queryString}`
+      )
+      if (!res.ok) {
+        throw new Error('Network response is not ok')
+      }
+      return res.json()
+    },
+    onSuccess: (res) => {
+      if (res.status === 'success') {
+        form.setValue('tokenAmount', res.data)
+      } else {
+        toast({
+          variant: 'destructive',
+          title: '获取对代币数量失败',
+          description: res.error.message,
+        })
+      }
+    },
+    onError: (res) => {
+      toast({
+        variant: 'destructive',
+        title: '获取对应代币数量失败',
+        description: res.message,
+      })
+    },
+  })
 
   if (isApproving) {
     return (
@@ -152,7 +211,9 @@ export default function AddLiquidityForm(props: {
                   tokens={tokens}
                 />
               </FormControl>
-              <FormDescription>你可以选择对应的代币或直接输入其合约地址</FormDescription>
+              <FormDescription>
+                你可以选择对应的代币或直接输入其合约地址
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -164,7 +225,21 @@ export default function AddLiquidityForm(props: {
             <FormItem>
               <FormLabel>代币数量</FormLabel>
               <FormControl>
-                <Input placeholder="0" type="number" {...field} />
+                <Input
+                  placeholder="0"
+                  type="number"
+                  {...field}
+                  onChange={(e) => {
+                    if (tokenDetail?.tokenId) {
+                      const value = e.currentTarget.value
+                      getMatchedEthAmount({
+                        tokenId: tokenDetail.tokenId.toString(),
+                        tokenAmount: value,
+                      })
+                    }
+                    field.onChange(e)
+                  }}
+                />
               </FormControl>
               <FormDescription>本次流动性提供所对应的代币数量</FormDescription>
               <FormMessage />
@@ -178,9 +253,25 @@ export default function AddLiquidityForm(props: {
             <FormItem>
               <FormLabel>以太币数量</FormLabel>
               <FormControl>
-                <Input placeholder="0" type='number' {...field} />
+                <Input
+                  placeholder="0"
+                  type="number"
+                  {...field}
+                  onChange={(e) => {
+                    if (tokenDetail?.tokenId) {
+                      const value = e.currentTarget.value
+                      getMatchedTokenAmount({
+                        tokenId: tokenDetail.tokenId.toString(),
+                        ethAmount: value,
+                      })
+                    }
+                    field.onChange(e)
+                  }}
+                />
               </FormControl>
-              <FormDescription>本次流动性提供所对应的以太币数量</FormDescription>
+              <FormDescription>
+                本次流动性提供所对应的以太币数量
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
