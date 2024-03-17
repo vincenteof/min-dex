@@ -14,11 +14,16 @@ import { Input } from '@/components/ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Exchange, Token } from '@web3-from-scratch/db'
 import { useForm } from 'react-hook-form'
-import { ContractFunctionExecutionError, isAddress, parseEther } from 'viem'
+import {
+  ContractFunctionExecutionError,
+  formatEther,
+  isAddress,
+  parseEther,
+} from 'viem'
 import { useAccount, useContractWrite, useWaitForTransaction } from 'wagmi'
 import { z } from 'zod'
 import Core from '@web3-from-scratch/core-abi'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { toast } from '@/components/ui/use-toast'
 import { Skeleton } from '@/components/ui/skeleton'
 import useApproveTokenAllowance from '@/hooks/useApproveTokenAllowance'
@@ -116,7 +121,8 @@ export default function AddLiquidityForm(props: {
     },
     onSuccess: (res) => {
       if (res.status === 'success') {
-        form.setValue('ethAmount', res.data)
+        const matchedEthAmount = formatEther(BigInt(res.data))
+        form.setValue('ethAmount', matchedEthAmount)
       } else {
         toast({
           variant: 'destructive',
@@ -125,7 +131,8 @@ export default function AddLiquidityForm(props: {
         })
       }
     },
-    onError: (res) => {
+    onError: (err) => {
+      console.log(err)
       toast({
         variant: 'destructive',
         title: '获取对应以太币数量失败',
@@ -145,7 +152,8 @@ export default function AddLiquidityForm(props: {
     },
     onSuccess: (res) => {
       if (res.status === 'success') {
-        form.setValue('tokenAmount', res.data)
+        const matchedTokenAmount = formatEther(BigInt(res.data))
+        form.setValue('tokenAmount', matchedTokenAmount)
       } else {
         toast({
           variant: 'destructive',
@@ -229,15 +237,15 @@ export default function AddLiquidityForm(props: {
                   placeholder="0"
                   type="number"
                   {...field}
-                  onChange={(e) => {
+                  onBlur={(e) => {
                     if (tokenDetail?.tokenId) {
                       const value = e.currentTarget.value
                       getMatchedEthAmount({
                         tokenId: tokenDetail.tokenId.toString(),
-                        tokenAmount: value,
+                        tokenAmount: parseEther(value).toString(),
                       })
                     }
-                    field.onChange(e)
+                    field.onBlur()
                   }}
                 />
               </FormControl>
@@ -257,12 +265,12 @@ export default function AddLiquidityForm(props: {
                   placeholder="0"
                   type="number"
                   {...field}
-                  onChange={(e) => {
+                  onBlur={(e) => {
                     if (tokenDetail?.tokenId) {
                       const value = e.currentTarget.value
                       getMatchedTokenAmount({
                         tokenId: tokenDetail.tokenId.toString(),
-                        ethAmount: value,
+                        ethAmount: parseEther(value).toString(),
                       })
                     }
                     field.onChange(e)

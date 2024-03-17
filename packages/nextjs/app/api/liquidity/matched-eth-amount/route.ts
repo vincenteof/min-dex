@@ -2,9 +2,10 @@ import { getMatchedEthAmount } from '@/db/liquidity'
 import { isFinite } from 'lodash-es'
 
 export async function GET(request: Request) {
-  const params = new URLSearchParams(request.url)
-  const tokenId = Number(params.get('tokenId'))
-  const tokenAmount = params.get('tokenAmount')
+  const url = new URL(request.url)
+  const searchParams = url.searchParams
+  const tokenId = Number(searchParams.get('tokenId'))
+  const tokenAmount = searchParams.get('tokenAmount')
   if (!isFinite(tokenId) || !tokenAmount) {
     return Response.json({
       status: 'error',

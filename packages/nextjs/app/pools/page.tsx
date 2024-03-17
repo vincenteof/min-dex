@@ -8,7 +8,6 @@ export default async function Pools({
   searchParams?: { providerAddress?: string }
 }) {
   const providerAddress = searchParams?.providerAddress ?? ''
-  console.log('providerAddress: ', providerAddress)
   return (
     <section className="w-full max-w-3xl pt-12 flex flex-col gap-6">
       <div className="w-full flex items-center justify-between">

@@ -1,5 +1,4 @@
 import prisma, { Exchange, Token } from '@web3-from-scratch/db'
-import Big from 'big.js'
 
 export async function getLiquidityPositionsForAddress(address: string) {
   const liquidityEvents = await prisma.liquidityEvent.findMany({
@@ -98,9 +97,7 @@ export async function getMatchedTokenAmount(
   }
 
   const { ethPoolAmount, tokenPoolAmount } = await getPoolAmounts(exchangeId)
-  const tokenAmount = Big(ethAmount)
-    .div(Big(ethPoolAmount.toString()))
-    .mul(Big(tokenPoolAmount.toString()))
+  const tokenAmount = (BigInt(ethAmount) * tokenPoolAmount) / ethPoolAmount
   return tokenAmount.toString()
 }
 
@@ -123,9 +120,6 @@ export async function getMatchedEthAmount(
   }
 
   const { ethPoolAmount, tokenPoolAmount } = await getPoolAmounts(exchangeId)
-  const ethAmount = Big(tokenAmount)
-    .div(Big(tokenPoolAmount.toString()))
-    .mul(Big(ethPoolAmount.toString()))
-
+  const ethAmount = (BigInt(tokenAmount) * ethPoolAmount) / tokenPoolAmount
   return ethAmount.toString()
 }
