@@ -1,9 +1,13 @@
 import { HardhatUserConfig } from 'hardhat/config'
 import { config } from 'dotenv'
 import '@nomicfoundation/hardhat-toolbox'
-import 'hardhat-ethernal'
+// import 'hardhat-ethernal'
 
 config()
+
+if (process.env.ENABLE_ETHERNAL === '1') {
+  import('hardhat-ethernal')
+}
 
 const hardhatConfig: HardhatUserConfig = {
   solidity: '0.8.19',
@@ -21,13 +25,16 @@ const hardhatConfig: HardhatUserConfig = {
       },
     },
   },
-  ethernal: {
-    apiToken: process.env.ETHERNAL_API_TOKEN as string,
-    disableSync: false,
-    disableTrace: false,
-    uploadAst: false,
-    disabled: false,
-  },
+  ethernal:
+    process.env.ENABLE_ETHERNAL === '1'
+      ? {
+          apiToken: process.env.ETHERNAL_API_TOKEN as string,
+          disableSync: false,
+          disableTrace: false,
+          uploadAst: false,
+          disabled: false,
+        }
+      : undefined,
 }
 
 export default hardhatConfig

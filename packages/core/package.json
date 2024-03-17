@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "dev": "node scripts/dev.js",
     "node": "hardhat node",
     "deploy": "hardhat run --network localhost scripts/deploy.ts",
     "compile": "hardhat compile",
