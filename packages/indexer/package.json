@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "exec": "ts-node ./src/index.ts",
-    "dev": "pnpm run exec"
+    "dev": "node scripts/dev.js"
   },
   "main": "src/index.ts",
   "types": "src/index.ts",
