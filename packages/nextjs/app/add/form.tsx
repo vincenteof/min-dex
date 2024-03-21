@@ -120,16 +120,18 @@ export default function AddLiquidityForm(props: {
       return res.json()
     },
     onSuccess: (res) => {
-      if (res.status === 'success') {
-        const matchedEthAmount = formatEther(BigInt(res.data))
-        form.setValue('ethAmount', matchedEthAmount)
-      } else {
+      if (res.status !== 'success') {
         toast({
           variant: 'destructive',
           title: '获取对应以太币数量失败',
           description: res.error.message,
         })
       }
+      if (res.data === null) {
+        return
+      }
+      const matchedEthAmount = formatEther(BigInt(res.data))
+      form.setValue('ethAmount', matchedEthAmount)
     },
     onError: (err) => {
       console.log(err)
@@ -151,16 +153,18 @@ export default function AddLiquidityForm(props: {
       return res.json()
     },
     onSuccess: (res) => {
-      if (res.status === 'success') {
-        const matchedTokenAmount = formatEther(BigInt(res.data))
-        form.setValue('tokenAmount', matchedTokenAmount)
-      } else {
+      if (res.status !== 'success') {
         toast({
           variant: 'destructive',
           title: '获取对代币数量失败',
           description: res.error.message,
         })
       }
+      if (res.data === null) {
+        return
+      }
+      const matchedTokenAmount = formatEther(BigInt(res.data))
+      form.setValue('tokenAmount', matchedTokenAmount)
     },
     onError: (res) => {
       toast({

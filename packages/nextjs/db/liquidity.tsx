@@ -97,8 +97,14 @@ export async function getMatchedTokenAmount(
   }
 
   const { ethPoolAmount, tokenPoolAmount } = await getPoolAmounts(exchangeId)
-  const tokenAmount = (BigInt(ethAmount) * tokenPoolAmount) / ethPoolAmount
-  return tokenAmount.toString()
+  if (ethPoolAmount === BigInt(0) && tokenPoolAmount === BigInt(0)) {
+    return null
+  }
+  if (ethPoolAmount !== BigInt(0) && tokenPoolAmount !== BigInt(0)) {
+    const tokenAmount = (BigInt(ethAmount) * tokenPoolAmount) / ethPoolAmount
+    return tokenAmount.toString()
+  }
+  throw new Error(`One of the pool amount is zero for tokenId: ${tokenId}`)
 }
 
 export async function getMatchedEthAmount(
@@ -120,6 +126,12 @@ export async function getMatchedEthAmount(
   }
 
   const { ethPoolAmount, tokenPoolAmount } = await getPoolAmounts(exchangeId)
-  const ethAmount = (BigInt(tokenAmount) * ethPoolAmount) / tokenPoolAmount
-  return ethAmount.toString()
+  if (ethPoolAmount === BigInt(0) && tokenPoolAmount === BigInt(0)) {
+    return null
+  }
+  if (ethPoolAmount !== BigInt(0) && tokenPoolAmount !== BigInt(0)) {
+    const ethAmount = (BigInt(tokenAmount) * ethPoolAmount) / tokenPoolAmount
+    return ethAmount.toString()
+  }
+  throw new Error(`One of the pool amount is zero for tokenId: ${tokenId}`)
 }
