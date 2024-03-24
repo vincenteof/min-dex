@@ -1,7 +1,12 @@
 {
-  "name": "web3-from-scratch",
+  "name": "min-dex",
   "private": true,
   "scripts": {
+    "dev": "pnpm -r --parallel run dev",
     "test": "pnpm -r run test"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5"
   }
 }

@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Token {
+  tokenId      Int        @id @default(autoincrement())
+  tokenAddress String     @unique
+  tokenName    String?
+  tokenSymbol  String?
+  exchanges    Exchange[]
+}
+
+model Exchange {
+  exchangeId      Int              @id @default(autoincrement())
+  exchangeAddress String           @unique
+  token           Token            @relation(fields: [tokenId], references: [tokenId])
+  tokenId         Int
+  liquidityEvents LiquidityEvent[]
+  swapEvents      SwapEvent[]
+}
+
+model LiquidityEvent {
+  eventId         Int      @id @default(autoincrement())
+  exchange        Exchange @relation(fields: [exchangeId], references: [exchangeId])
+  exchangeId      Int
+  providerAddress String
+  liquidity       String
+  tokenAmount     String
+  ethAmount       String
+  eventType       String
+  timestamp       DateTime @default(now())
+}
+
+model SwapEvent {
+  swapId       Int      @id @default(autoincrement())
+  exchange     Exchange @relation(fields: [exchangeId], references: [exchangeId])
+  exchangeId   Int
+  userAddress  String
+  ethSold      String
+  tokensSold   String
+  tokensBought String
+  timestamp    DateTime @default(now())
+}

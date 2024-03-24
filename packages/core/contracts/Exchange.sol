@@ -23,7 +23,42 @@ contract Exchange is ERC20 {
     address public tokenAddress;
     address public factoryAddress;
 
-    constructor(address _tokenAddress) ERC20("Web3-From-Scratch", "W3FS") {
+    event LiquidityAdded(
+        address indexed exchangeAddress,
+        address indexed tokenAddress,
+        address indexed provider,
+        uint256 liquidity,
+        uint256 tokenAmount,
+        uint256 ethAmount
+    );
+    event LiquidityRemoved(
+        address indexed exchangeAddress,
+        address indexed tokenAddress,
+        address indexed provider,
+        uint256 liquidity,
+        uint256 tokenAmount,
+        uint256 ethAmount
+    );
+    event EthToTokenSwap(
+        address indexed buyer,
+        address indexed tokenAddress,
+        uint256 ethSold,
+        uint256 tokensBought
+    );
+    event TokenToEthSwap(
+        address indexed seller,
+        address indexed tokenAddress,
+        uint256 tokensSold,
+        uint256 ethBought
+    );
+    event TokenToTokenSwap(
+        address indexed operator,
+        address indexed tokenAddressSold,
+        address indexed tokenAddressBought,
+        uint256 tokensSold
+    );
+
+    constructor(address _tokenAddress) ERC20("Min-Dex", "MIN") {
         require(_tokenAddress != address(0), "invalid token address");
         tokenAddress = _tokenAddress;
         factoryAddress = msg.sender;
@@ -41,6 +76,7 @@ contract Exchange is ERC20 {
             token.transferFrom(msg.sender, address(this), _tokenAmount);
             uint256 liquidity = address(this).balance;
             _mint(msg.sender, liquidity);
+            emit LiquidityAdded(address(this), tokenAddress, msg.sender, liquidity, _tokenAmount, msg.value);
             return liquidity;
         } else {
             uint256 ethReserve = address(this).balance - msg.value;
@@ -51,6 +87,7 @@ contract Exchange is ERC20 {
             token.transferFrom(msg.sender, address(this), tokenAmount);
             uint256 liquidity = (totalSupply() * msg.value) / ethReserve;
             _mint(msg.sender, liquidity);
+            emit LiquidityAdded(address(this), tokenAddress, msg.sender, liquidity, _tokenAmount, msg.value);
             return liquidity;
         }
     }
@@ -61,9 +98,11 @@ contract Exchange is ERC20 {
         require(_amount > 0, "invalid amount");
         uint256 ethAmount = (address(this).balance * _amount) / totalSupply();
         uint256 tokenAmount = (getReserve() * _amount) / totalSupply();
+        // we don't check the maximum value here becuase `_burn` does it
         _burn(msg.sender, _amount);
         payable(msg.sender).transfer(ethAmount);
         IERC20(tokenAddress).transfer(msg.sender, tokenAmount);
+        emit LiquidityRemoved(address(this), tokenAddress, msg.sender, _amount, tokenAmount, ethAmount);
         return (ethAmount, tokenAmount);
     }
 
@@ -86,13 +125,13 @@ contract Exchange is ERC20 {
     // when someone sell eth for token,
     // this contract has more eth and less token
     function getTokenAmount(uint256 _ethSold) public view returns (uint256) {
-        require(_ethSold > 0, "ethSold is too small");
+        require(_ethSold >= 0, "ethSold is too small");
         uint256 tokenReserve = getReserve();
         return getAmount(_ethSold, address(this).balance, tokenReserve);
     }
 
     function getEthAmount(uint256 _tokenSold) public view returns (uint256) {
-        require(_tokenSold > 0, "tokenSold is too small");
+        require(_tokenSold >= 0, "tokenSold is too small");
         uint256 tokenReserve = getReserve();
         return getAmount(_tokenSold, tokenReserve, address(this).balance);
     }
@@ -107,6 +146,7 @@ contract Exchange is ERC20 {
         );
         require(tokenBought >= _minTokens, "insufficient output amount");
         IERC20(tokenAddress).transfer(recipent, tokenBought);
+        emit EthToTokenSwap(msg.sender, tokenAddress, msg.value, tokenBought);
     }
 
     function ethToTokenSwap(uint256 _minTokens) public payable {
@@ -129,6 +169,7 @@ contract Exchange is ERC20 {
             _tokenSold
         );
         payable(msg.sender).transfer(ethBought);
+        emit TokenToEthSwap(msg.sender, tokenAddress, _tokenSold, ethBought);
     }
 
     // token to token swapping is just to find another exchange and do 2 times swap
@@ -158,5 +199,6 @@ contract Exchange is ERC20 {
             _minTokensBought,
             msg.sender
         );
+        emit TokenToTokenSwap(msg.sender, tokenAddress, _tokenAddress, _tokenSold);
     }
 }

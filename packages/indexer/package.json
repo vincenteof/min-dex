@@ -1,0 +1,17 @@
+{
+  "name": "@min-dex/indexer",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "exec": "ts-node ./src/index.ts",
+    "dev": "node scripts/dev.js"
+  },
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {
+    "@min-dex/core-abi": "workspace:*",
+    "@min-dex/db": "workspace:*",
+    "dotenv": "^16.4.1",
+    "ethers": "^6.1.0"
+  }
+}
