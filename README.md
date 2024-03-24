@@ -1,4 +1,4 @@
-# web3-from-scratch
+# min-dex
 
 This repository hosts a full implementation of a web3 product similar to Uniswap v1. I've learned the basics of Solidity and the workings of some core web3 components. Now it's time to put them together.
 

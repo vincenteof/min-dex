@@ -6,7 +6,7 @@ const nextConfig = {
     config.externals.push('pino-pretty', 'lokijs', 'encoding')
     return config
   },
-  transpilePackages: ['@web3-from-scratch/core-abi'],
+  transpilePackages: ['@min-dex/core-abi'],
   images: {
     remotePatterns: [
       {

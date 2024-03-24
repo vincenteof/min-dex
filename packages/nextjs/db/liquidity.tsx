@@ -1,4 +1,4 @@
-import prisma, { Exchange, Token } from '@web3-from-scratch/db'
+import prisma, { Exchange, Token } from '@min-dex/db'
 
 export async function getLiquidityPositionsForAddress(address: string) {
   const liquidityEvents = await prisma.liquidityEvent.findMany({

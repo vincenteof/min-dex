@@ -42,8 +42,8 @@ describe('addLiquidity', async () => {
 
   it('is deployed', async () => {
     expect(await exchange.waitForDeployment()).to.equal(exchange)
-    expect(await exchange.name()).to.equal('Web3-From-Scratch')
-    expect(await exchange.symbol()).to.equal('W3FS')
+    expect(await exchange.name()).to.equal('min-dex')
+    expect(await exchange.symbol()).to.equal('MIN')
     expect(await exchange.totalSupply()).to.equal(toWei(0))
     expect(await exchange.factoryAddress()).to.equal(owner.address)
   })

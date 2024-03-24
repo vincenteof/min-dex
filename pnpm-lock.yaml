@@ -60,10 +60,10 @@ importers:
 
   packages/indexer:
     dependencies:
-      '@web3-from-scratch/core-abi':
+      '@min-dex/core-abi':
         specifier: workspace:*
         version: link:../core-abi
-      '@web3-from-scratch/db':
+      '@min-dex/db':
         specifier: workspace:*
         version: link:../db
       dotenv:
@@ -111,10 +111,10 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.28.4
         version: 5.28.4(react@18.2.0)
-      '@web3-from-scratch/core-abi':
+      '@min-dex/core-abi':
         specifier: workspace:*
         version: link:../core-abi
-      '@web3-from-scratch/db':
+      '@min-dex/db':
         specifier: workspace:*
         version: link:../db
       abitype:

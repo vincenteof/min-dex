@@ -58,7 +58,7 @@ contract Exchange is ERC20 {
         uint256 tokensSold
     );
 
-    constructor(address _tokenAddress) ERC20("Web3-From-Scratch", "W3FS") {
+    constructor(address _tokenAddress) ERC20("Min-Dex", "MIN") {
         require(_tokenAddress != address(0), "invalid token address");
         tokenAddress = _tokenAddress;
         factoryAddress = msg.sender;

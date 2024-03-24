@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import clsx from 'clsx'
-import { Token } from '@web3-from-scratch/db'
+import { Token } from '@min-dex/db'
 
 export default function TokenSelectDialog(props: {
   onChange?: (tokenAddress: string) => void

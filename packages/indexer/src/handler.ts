@@ -1,5 +1,5 @@
 import { ethers } from 'ethers'
-import prisma from '@web3-from-scratch/db'
+import prisma from '@min-dex/db'
 import { provider } from './lib/ethers'
 import erc20ABI from './abi/erc20'
 

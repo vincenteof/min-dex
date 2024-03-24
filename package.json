@@ -1,5 +1,5 @@
 {
-  "name": "web3-from-scratch",
+  "name": "min-dex",
   "private": true,
   "scripts": {
     "dev": "pnpm -r --parallel run dev",

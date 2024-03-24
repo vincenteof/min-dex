@@ -1,4 +1,4 @@
-import prisma from '@web3-from-scratch/db'
+import prisma from '@min-dex/db'
 
 export async function getAllTokensWithExchanges() {
   try {

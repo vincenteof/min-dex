@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Exchange, Token } from '@web3-from-scratch/db'
+import { Exchange, Token } from '@min-dex/db'
 import { useForm } from 'react-hook-form'
 import {
   ContractFunctionExecutionError,
@@ -22,7 +22,7 @@ import {
 } from 'viem'
 import { useAccount, useContractWrite, useWaitForTransaction } from 'wagmi'
 import { z } from 'zod'
-import Core from '@web3-from-scratch/core-abi'
+import Core from '@min-dex/core-abi'
 import { useMemo } from 'react'
 import { toast } from '@/components/ui/use-toast'
 import { Skeleton } from '@/components/ui/skeleton'

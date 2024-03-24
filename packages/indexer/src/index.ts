@@ -1,6 +1,6 @@
 import { ethers } from 'ethers'
 import { config } from 'dotenv'
-import Core from '@web3-from-scratch/core-abi'
+import Core from '@min-dex/core-abi'
 import { provider } from './lib/ethers'
 import {
   handleCreateExchangeEvent,
