@@ -18,17 +18,20 @@ export default async function PositionsList(props: { address?: string }) {
         <PositionItem
           key={x.exchangeId}
           symbol={x.token.tokenSymbol ?? '??'}
-          address={x.token.tokenAddress}
+          exchangeId={x.exchangeId}
         />
       ))}
     </div>
   )
 }
 
-function PositionItem(props: { symbol: string; address: string }) {
-  const { symbol, address } = props
+function PositionItem(props: { symbol: string; exchangeId: number }) {
+  const { symbol, exchangeId } = props
   return (
-    <div className="p-3 rounded-xl flex items-center justify-between transition-all hover:bg-accent hover:text-accent-foreground">
+    <Link
+      className="p-3 rounded-xl flex items-center justify-between transition-all hover:bg-accent hover:text-accent-foreground"
+      href={`/pools/${exchangeId}`}
+    >
       <div className="flex items-center">
         <img
           className="w-[32px] h-[32px] rounded-full mr-4"
@@ -38,7 +41,8 @@ function PositionItem(props: { symbol: string; address: string }) {
         <div className="font-semibold mr-4">{symbol}/ETH</div>
         <div className="text-sm font-light">0.3%</div>
       </div>
-      <div className="flex gap-2">
+      {/* todo: more style and info */}
+      {/* <div className="flex gap-1">
         <Button variant="outline">
           <Link href={{ pathname: '/add', query: { tokenAddress: address } }}>
             添加
@@ -47,7 +51,7 @@ function PositionItem(props: { symbol: string; address: string }) {
         <Button variant="outline">
           <Link href="/remove">移除</Link>
         </Button>
-      </div>
-    </div>
+      </div> */}
+    </Link>
   )
 }

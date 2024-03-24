@@ -201,7 +201,10 @@ export default function AddLiquidityForm(props: {
         onSubmit={form.handleSubmit((values) => {
           if (!allowance || allowance < parseEther(tokenAmountValue)) {
             approve?.()
-            throw new Error('No sufficient allowance for token')
+            // todo: add message to tell user to add allowance
+            return Promise.reject(
+              new Error('No sufficient allowance for token')
+            )
           }
           return writeAsync({
             args: [parseEther(values.tokenAmount)],
@@ -288,6 +291,7 @@ export default function AddLiquidityForm(props: {
             </FormItem>
           )}
         />
+        {/* todo: 等待 allowance 类似 uniswap 的效果 */}
         <OnChainOpButton
           type="submit"
           size="lg"
