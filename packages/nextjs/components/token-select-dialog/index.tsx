@@ -17,7 +17,6 @@ import clsx from 'clsx'
 import { useQuery } from '@tanstack/react-query'
 import { Token } from '@min-dex/db'
 
-// todo: emit token object
 export default function TokenSelectDialog(props: {
   onChange?: (token: Token[]) => void
   value?: Token | null

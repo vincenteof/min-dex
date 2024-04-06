@@ -2,6 +2,7 @@ import { getMatchedTokenAmount } from '@/db/liquidity'
 import { isFinite } from 'lodash-es'
 
 // todo: make the calling type safe
+// todo: add auth
 export async function GET(request: Request) {
   const url = new URL(request.url)
   const searchParams = url.searchParams
