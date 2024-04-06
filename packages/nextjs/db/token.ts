@@ -1,8 +1,8 @@
-import prisma from '@min-dex/db'
+import db from '@min-dex/db'
 
 export async function getAllTokensWithExchanges() {
   try {
-    const tokens = await prisma.token.findMany({
+    const tokens = await db.token.findMany({
       include: {
         exchanges: true,
       },
@@ -20,7 +20,7 @@ export async function getAllTokensWithExchanges() {
 
 export async function getTokenById(tokenId: number) {
   try {
-    const token = await prisma.token.findUnique({
+    const token = await db.token.findUnique({
       where: {
         tokenId,
       },

@@ -1,7 +1,7 @@
-import prisma from '@min-dex/db'
+import db from '@min-dex/db'
 
 export async function getExchangeById(exchangeId: number) {
-  return prisma.exchange.findUnique({
+  return db.exchange.findUnique({
     where: {
       exchangeId,
     },
@@ -12,7 +12,7 @@ export async function getExchangeById(exchangeId: number) {
 }
 
 export async function getExchangeByAddress(exchangeAddress: string) {
-  return prisma.exchange.findUnique({
+  return db.exchange.findUnique({
     where: {
       exchangeAddress,
     },

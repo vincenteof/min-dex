@@ -1,7 +1,7 @@
-import prisma, { Exchange, Token } from '@min-dex/db'
+import db, { Exchange, Token } from '@min-dex/db'
 
 export async function getLiquidityPositionsForAddress(address: string) {
-  const liquidityEvents = await prisma.liquidityEvent.findMany({
+  const liquidityEvents = await db.liquidityEvent.findMany({
     where: {
       providerAddress: address,
     },
@@ -50,7 +50,7 @@ export async function getLiquidityPositionsForAddress(address: string) {
 }
 
 async function getPoolAmounts(exchangeId: number) {
-  const liquidityEvents = await prisma.liquidityEvent.findMany({
+  const liquidityEvents = await db.liquidityEvent.findMany({
     where: {
       exchangeId,
     },
@@ -89,7 +89,7 @@ export async function getMatchedTokenAmount(
   tokenId: number,
   ethAmount: string
 ) {
-  const exchanges = await prisma.exchange.findMany({
+  const exchanges = await db.exchange.findMany({
     where: {
       tokenId: tokenId,
     },
@@ -118,7 +118,7 @@ export async function getMatchedEthAmount(
   tokenId: number,
   tokenAmount: string
 ) {
-  const exchanges = await prisma.exchange.findMany({
+  const exchanges = await db.exchange.findMany({
     where: {
       tokenId: tokenId,
     },
@@ -147,7 +147,7 @@ export async function getTotalLiquidityForAddress(
   exchangeId: number,
   providerAddress: string
 ) {
-  const liquidityEvents = await prisma.liquidityEvent.findMany({
+  const liquidityEvents = await db.liquidityEvent.findMany({
     where: {
       exchangeId,
       providerAddress,
