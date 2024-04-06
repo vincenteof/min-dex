@@ -14,23 +14,40 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import clsx from 'clsx'
+import { useQuery } from '@tanstack/react-query'
 import { Token } from '@min-dex/db'
 
+// todo: emit token object
 export default function TokenSelectDialog(props: {
-  onChange?: (tokenAddress: string) => void
-  value?: string
-  tokens: Token[]
+  onChange?: (token: Token[]) => void
+  value?: Token | null
 }) {
-  const { onChange, value, tokens } = props
-  const targetToken = tokens.find((token) => token.tokenAddress === value)
+  const { onChange, value } = props
+  const { data: queriedTokens = [] } = useQuery({
+    queryFn: async () => {
+      const res = await fetch('/api/token')
+      if (!res.ok) {
+        throw new Error('Network response is not ok')
+      }
+      return res.json()
+    },
+    queryKey: ['/api/token'],
+    select: (res) => {
+      if (res.status !== 'success') {
+        return []
+      }
+      return res.data
+    },
+  })
+  const tokens = queriedTokens ?? []
   return (
     <Dialog>
       <DialogTrigger asChild>
         <div>
-          <Select value={targetToken?.tokenSymbol ?? undefined}>
+          <Select value={value?.tokenSymbol ?? undefined}>
             <SelectTrigger>
               <SelectValue placeholder="选择代币">
-                {targetToken?.tokenSymbol}
+                {value?.tokenSymbol}
               </SelectValue>
             </SelectTrigger>
           </Select>
@@ -47,7 +64,8 @@ export default function TokenSelectDialog(props: {
           <div className="text-sm text-muted-foreground pb-6">热门代币</div>
           <ScrollArea className="w-full h-[360px]">
             {tokens.map((token) => {
-              const isSelected = value && token.tokenAddress === value
+              const isSelected =
+                value && token.tokenAddress === value.tokenAddress
               return (
                 <DialogClose key={token.tokenId} asChild>
                   <div
@@ -56,7 +74,7 @@ export default function TokenSelectDialog(props: {
                       isSelected && 'opacity-40'
                     )}
                     onClick={() => {
-                      onChange?.(token.tokenAddress)
+                      onChange?.(token)
                     }}
                   >
                     {/* todo: nextjs Image has error */}

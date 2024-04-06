@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Exchange, Token } from '@min-dex/db'
+import { Token } from '@min-dex/db'
 import { useForm } from 'react-hook-form'
 import {
   ContractFunctionExecutionError,
@@ -23,7 +23,6 @@ import {
 import { useAccount, useContractWrite, useWaitForTransaction } from 'wagmi'
 import { z } from 'zod'
 import Core from '@min-dex/core-abi'
-import { useMemo } from 'react'
 import { toast } from '@/components/ui/use-toast'
 import { Skeleton } from '@/components/ui/skeleton'
 import useApproveTokenAllowance from '@/hooks/useApproveTokenAllowance'
@@ -32,40 +31,52 @@ import { useRouter } from 'next/navigation'
 import { useMutation } from '@tanstack/react-query'
 
 const formSchema = z.object({
-  tokenAddress: z
-    .string()
-    .min(1, {
-      message: '代币合约地址不能为空',
+  token: z
+    .object({
+      tokenId: z.number().positive(),
+      tokenAddress: z
+        .string()
+        .min(1, {
+          message: '代币合约地址不能为空',
+        })
+        .refine((data) => isAddress(data), {
+          message: '代币合约地址不合法',
+        }),
+      exchangeAddress: z
+        .string()
+        .min(1, {
+          message: '交易所合约地址不能为空',
+        })
+        .refine((data) => isAddress(data), {
+          message: '交易所合约地址不合法',
+        }),
     })
-    .refine((data) => isAddress(data), {
-      message: '代币合约地址不合法',
-    }),
+    .nullable(),
   tokenAmount: z.string(),
   ethAmount: z.string(),
 })
 
 // todo: default value and schema validation
 export default function AddLiquidityForm(props: {
-  tokens: (Token & { exchanges: Exchange[] })[]
-  defaultTokenAddress?: string
+  defaultToken: Token | null
 }) {
-  const { tokens, defaultTokenAddress } = props
+  const { defaultToken } = props
   const router = useRouter()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      tokenAddress: defaultTokenAddress,
+      token: defaultToken,
       tokenAmount: '0',
       ethAmount: '0',
     },
   })
 
   const currentAccount = useAccount()
-  const tokenAddressValue = form.watch('tokenAddress') as `0x${string}`
-  const tokenDetail = useMemo(() => {
-    return tokens.find((x) => x.tokenAddress === tokenAddressValue)
-  }, [tokenAddressValue, tokens])
-  const exchangeAddress = tokenDetail?.exchanges?.[0]?.exchangeAddress as
+  const tokenValue = form.watch('token')
+  const tokenAddressValue = tokenValue?.tokenAddress as
+    | `0x${string}`
+    | undefined
+  const exchangeAddressValue = tokenValue?.exchangeAddress as
     | `0x${string}`
     | undefined
 
@@ -74,7 +85,7 @@ export default function AddLiquidityForm(props: {
   const { allowance, approve, isApproving } = useApproveTokenAllowance(
     currentAccount.address,
     tokenAddressValue,
-    exchangeAddress,
+    exchangeAddressValue,
     tokenAmountValue
   )
 
@@ -85,7 +96,7 @@ export default function AddLiquidityForm(props: {
   } = useContractWrite({
     abi: Core.Exchange.abi,
     functionName: 'addLiquidity',
-    address: exchangeAddress,
+    address: exchangeAddressValue,
     onError: (err) => {
       toast({
         variant: 'destructive',
@@ -202,6 +213,10 @@ export default function AddLiquidityForm(props: {
           if (!allowance || allowance < parseEther(tokenAmountValue)) {
             approve?.()
             // todo: add message to tell user to add allowance
+            toast({
+              variant: 'destructive',
+              title: '请先完成代币额度授权',
+            })
             return Promise.reject(
               new Error('No sufficient allowance for token')
             )
@@ -215,15 +230,14 @@ export default function AddLiquidityForm(props: {
       >
         <FormField
           control={form.control}
-          name="tokenAddress"
+          name="token"
           render={({ field }) => (
             <FormItem>
               <FormLabel>代币</FormLabel>
               <FormControl>
                 <TokenSelectDialog
-                  value={field.value}
+                  value={field.value as unknown as Token}
                   onChange={field.onChange}
-                  tokens={tokens}
                 />
               </FormControl>
               <FormDescription>
@@ -245,10 +259,10 @@ export default function AddLiquidityForm(props: {
                   type="number"
                   {...field}
                   onBlur={(e) => {
-                    if (tokenDetail?.tokenId) {
+                    if (tokenValue?.tokenId) {
                       const value = e.currentTarget.value
                       getMatchedEthAmount({
-                        tokenId: tokenDetail.tokenId.toString(),
+                        tokenId: tokenValue.tokenId.toString(),
                         tokenAmount: parseEther(value).toString(),
                       })
                     }
@@ -273,10 +287,10 @@ export default function AddLiquidityForm(props: {
                   type="number"
                   {...field}
                   onBlur={(e) => {
-                    if (tokenDetail?.tokenId) {
+                    if (tokenValue?.tokenId) {
                       const value = e.currentTarget.value
                       getMatchedTokenAmount({
-                        tokenId: tokenDetail.tokenId.toString(),
+                        tokenId: tokenValue.tokenId.toString(),
                         ethAmount: parseEther(value).toString(),
                       })
                     }
