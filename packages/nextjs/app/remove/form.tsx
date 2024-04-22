@@ -15,7 +15,6 @@ import {
 import { Input } from '@/components/ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Token } from '@min-dex/db'
-import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { isAddress } from 'viem/utils'
@@ -25,6 +24,7 @@ import { z } from 'zod'
 import { toast } from '@/components/ui/use-toast'
 import { ContractFunctionExecutionError } from 'viem'
 import { useRouter } from 'next/navigation'
+import { trpc } from '@/lib/trpc/client'
 
 const defaultFormSchema = z.object({
   token: z
@@ -73,22 +73,7 @@ export default function RemoveLiquidityForm(props: {
     exchangeAddress: tokenValue?.exchangeAddress ?? '',
     providerAddress: address ?? '',
   }
-  const { data: totalLiquidity } = useQuery({
-    queryFn: async () => {
-      const queryString = new URLSearchParams(params).toString()
-      const res = await fetch(`/api/liquidity/total?${queryString}`)
-      if (!res.ok) {
-        throw new Error('Network response is not ok')
-      }
-      return res.json()
-    },
-    queryKey: ['/api/liquidity/total', params],
-    select: (res) => {
-      if (res.status !== 'success') {
-        return null
-      }
-      return res.data
-    },
+  const { data: totalLiquidity } = trpc.getTotalLiquidity.useQuery(params, {
     enabled: Boolean(params.exchangeAddress && params.providerAddress),
   })
 

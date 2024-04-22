@@ -14,30 +14,15 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import clsx from 'clsx'
-import { useQuery } from '@tanstack/react-query'
 import { Token } from '@min-dex/db'
+import { trpc } from '@/lib/trpc/client'
 
 export default function TokenSelectDialog(props: {
-  onChange?: (token: Token[]) => void
+  onChange?: (token: Token) => void
   value?: Token | null
 }) {
   const { onChange, value } = props
-  const { data: queriedTokens = [] } = useQuery({
-    queryFn: async () => {
-      const res = await fetch('/api/token')
-      if (!res.ok) {
-        throw new Error('Network response is not ok')
-      }
-      return res.json()
-    },
-    queryKey: ['/api/token'],
-    select: (res) => {
-      if (res.status !== 'success') {
-        return []
-      }
-      return res.data
-    },
-  })
+  const { data: queriedTokens = [] } = trpc.getTokens.useQuery()
   const tokens = queriedTokens ?? []
   return (
     <Dialog>

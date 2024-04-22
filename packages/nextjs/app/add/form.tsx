@@ -28,7 +28,9 @@ import { Skeleton } from '@/components/ui/skeleton'
 import useApproveTokenAllowance from '@/hooks/useApproveTokenAllowance'
 import OnChainOpButton from '@/components/on-chain-op-button'
 import { useRouter } from 'next/navigation'
-import { useMutation } from '@tanstack/react-query'
+import { trpc } from '@/lib/trpc/client'
+import { useEffect } from 'react'
+import { isNil } from 'lodash-es'
 
 const formSchema = z.object({
   token: z
@@ -81,6 +83,7 @@ export default function AddLiquidityForm(props: {
     | undefined
 
   const tokenAmountValue = form.watch('tokenAmount') ?? '0'
+  const ethAmountValue = form.watch('ethAmount') ?? '0'
 
   const { allowance, approve, isApproving } = useApproveTokenAllowance(
     currentAccount.address,
@@ -119,72 +122,55 @@ export default function AddLiquidityForm(props: {
     },
   })
 
-  const { mutate: getMatchedEthAmount } = useMutation({
-    mutationFn: async (params: { tokenId: string; tokenAmount: string }) => {
-      const queryString = new URLSearchParams(params).toString()
-      const res = await fetch(
-        `/api/liquidity/matched-eth-amount?${queryString}`
-      )
-      if (!res.ok) {
-        throw new Error('Network response is not ok')
-      }
-      return res.json()
+  const { data: matchedEthAmountData } = trpc.getMatchedEthAmount.useQuery(
+    {
+      tokenId: tokenValue?.tokenId as number,
+      tokenAmount: parseEther(tokenAmountValue).toString(),
     },
-    onSuccess: (res) => {
-      if (res.status !== 'success') {
+    {
+      enabled: Boolean(tokenValue?.tokenId),
+      onError: (err) => {
+        console.log(err)
         toast({
           variant: 'destructive',
           title: '获取对应以太币数量失败',
-          description: res.error.message,
         })
-      }
-      if (res.data === null) {
-        return
-      }
-      const matchedEthAmount = formatEther(BigInt(res.data))
-      form.setValue('ethAmount', matchedEthAmount)
+      },
+    }
+  )
+
+  useEffect(() => {
+    if (isNil(matchedEthAmountData)) {
+      return
+    }
+    const matchedEthAmount = formatEther(BigInt(matchedEthAmountData))
+    form.setValue('ethAmount', matchedEthAmount)
+  }, [form, matchedEthAmountData])
+
+  const { data: matchedTokenAmountData } = trpc.getMatchedTokenAmount.useQuery(
+    {
+      tokenId: tokenValue?.tokenId as number,
+      ethAmount: parseEther(ethAmountValue).toString(),
     },
-    onError: (err) => {
-      console.log(err)
-      toast({
-        variant: 'destructive',
-        title: '获取对应以太币数量失败',
-      })
-    },
-  })
-  const { mutate: getMatchedTokenAmount } = useMutation({
-    mutationFn: async (params: { tokenId: string; ethAmount: string }) => {
-      const queryString = new URLSearchParams(params).toString()
-      const res = await fetch(
-        `/api/liquidity/matched-token-amount?${queryString}`
-      )
-      if (!res.ok) {
-        throw new Error('Network response is not ok')
-      }
-      return res.json()
-    },
-    onSuccess: (res) => {
-      if (res.status !== 'success') {
+    {
+      enabled: Boolean(tokenValue?.tokenId),
+      onError: (err) => {
+        console.log(err)
         toast({
           variant: 'destructive',
-          title: '获取对代币数量失败',
-          description: res.error.message,
+          title: '获取对应代币数量失败',
         })
-      }
-      if (res.data === null) {
-        return
-      }
-      const matchedTokenAmount = formatEther(BigInt(res.data))
-      form.setValue('tokenAmount', matchedTokenAmount)
-    },
-    onError: (res) => {
-      toast({
-        variant: 'destructive',
-        title: '获取对应代币数量失败',
-        description: res.message,
-      })
-    },
-  })
+      },
+    }
+  )
+
+  useEffect(() => {
+    if (isNil(matchedTokenAmountData)) {
+      return
+    }
+    const matchedTokenAmount = formatEther(BigInt(matchedTokenAmountData))
+    form.setValue('tokenAmount', matchedTokenAmount)
+  }, [form, matchedTokenAmountData])
 
   if (isApproving) {
     return (
@@ -254,21 +240,7 @@ export default function AddLiquidityForm(props: {
             <FormItem>
               <FormLabel>代币数量</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="0"
-                  type="number"
-                  {...field}
-                  onBlur={(e) => {
-                    if (tokenValue?.tokenId) {
-                      const value = e.currentTarget.value
-                      getMatchedEthAmount({
-                        tokenId: tokenValue.tokenId.toString(),
-                        tokenAmount: parseEther(value).toString(),
-                      })
-                    }
-                    field.onBlur()
-                  }}
-                />
+                <Input placeholder="0" type="number" {...field} />
               </FormControl>
               <FormDescription>本次流动性提供所对应的代币数量</FormDescription>
               <FormMessage />
@@ -282,21 +254,7 @@ export default function AddLiquidityForm(props: {
             <FormItem>
               <FormLabel>以太币数量</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="0"
-                  type="number"
-                  {...field}
-                  onBlur={(e) => {
-                    if (tokenValue?.tokenId) {
-                      const value = e.currentTarget.value
-                      getMatchedTokenAmount({
-                        tokenId: tokenValue.tokenId.toString(),
-                        ethAmount: parseEther(value).toString(),
-                      })
-                    }
-                    field.onChange(e)
-                  }}
-                />
+                <Input placeholder="0" type="number" {...field} />
               </FormControl>
               <FormDescription>
                 本次流动性提供所对应的以太币数量
