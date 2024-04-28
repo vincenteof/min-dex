@@ -13,7 +13,7 @@ export const fontSans = FontSans({
 })
 
 export const metadata: Metadata = {
-  title: 'Web3 from Scratch',
+  title: 'Min Dex',
   description: 'Uniswap v1 like app',
 }
 

@@ -1,7 +1,7 @@
-import prisma, { Exchange, Token } from '@min-dex/db'
+import db, { Exchange, Token } from '@min-dex/db'
 
 export async function getLiquidityPositionsForAddress(address: string) {
-  const liquidityEvents = await prisma.liquidityEvent.findMany({
+  const liquidityEvents = await db.liquidityEvent.findMany({
     where: {
       providerAddress: address,
     },
@@ -50,7 +50,7 @@ export async function getLiquidityPositionsForAddress(address: string) {
 }
 
 async function getPoolAmounts(exchangeId: number) {
-  const liquidityEvents = await prisma.liquidityEvent.findMany({
+  const liquidityEvents = await db.liquidityEvent.findMany({
     where: {
       exchangeId,
     },
@@ -58,6 +58,7 @@ async function getPoolAmounts(exchangeId: number) {
       ethAmount: true,
       tokenAmount: true,
       liquidity: true,
+      eventType: true,
     },
   })
 
@@ -66,9 +67,15 @@ async function getPoolAmounts(exchangeId: number) {
   let liquidity = BigInt(0)
 
   for (const event of liquidityEvents) {
-    ethPoolAmount += BigInt(event.ethAmount)
-    tokenPoolAmount += BigInt(event.tokenAmount)
-    liquidity += BigInt(event.liquidity)
+    if (event.eventType === 'LiquidityAdded') {
+      ethPoolAmount += BigInt(event.ethAmount)
+      tokenPoolAmount += BigInt(event.tokenAmount)
+      liquidity += BigInt(event.liquidity)
+    } else {
+      ethPoolAmount -= BigInt(event.ethAmount)
+      tokenPoolAmount -= BigInt(event.tokenAmount)
+      liquidity -= BigInt(event.liquidity)
+    }
   }
 
   return {
@@ -82,7 +89,7 @@ export async function getMatchedTokenAmount(
   tokenId: number,
   ethAmount: string
 ) {
-  const exchanges = await prisma.exchange.findMany({
+  const exchanges = await db.exchange.findMany({
     where: {
       tokenId: tokenId,
     },
@@ -111,7 +118,7 @@ export async function getMatchedEthAmount(
   tokenId: number,
   tokenAmount: string
 ) {
-  const exchanges = await prisma.exchange.findMany({
+  const exchanges = await db.exchange.findMany({
     where: {
       tokenId: tokenId,
     },
@@ -134,4 +141,30 @@ export async function getMatchedEthAmount(
     return ethAmount.toString()
   }
   throw new Error(`One of the pool amount is zero for tokenId: ${tokenId}`)
+}
+
+export async function getTotalLiquidityForAddress(
+  exchangeId: number,
+  providerAddress: string
+) {
+  const liquidityEvents = await db.liquidityEvent.findMany({
+    where: {
+      exchangeId,
+      providerAddress,
+    },
+    select: {
+      liquidity: true,
+      eventType: true,
+    },
+  })
+
+  return liquidityEvents
+    .reduce((total, event) => {
+      if (event.eventType === 'LiquidityAdded') {
+        return total + BigInt(event.liquidity)
+      } else {
+        return total - BigInt(event.liquidity)
+      }
+    }, BigInt(0))
+    .toString()
 }

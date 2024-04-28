@@ -1,5 +1,5 @@
 import { ethers } from 'ethers'
-import prisma from '@min-dex/db'
+import db from '@min-dex/db'
 import { provider } from './lib/ethers'
 import erc20ABI from './abi/erc20'
 
@@ -28,7 +28,7 @@ export async function handleCreateExchangeEvent(
     return
   }
   const { name: tokenName, symbol: tokenSymbol } = tokenDetail
-  await prisma.$transaction(async (tx) => {
+  await db.$transaction(async (tx) => {
     try {
       await tx.token.upsert({
         where: { tokenAddress },
@@ -109,7 +109,7 @@ async function handleLiquidityEvent(
   ethAmount: bigint
 ) {
   try {
-    await prisma.$transaction(async (tx) => {
+    await db.$transaction(async (tx) => {
       // Fetch the Exchange Record to link to the provided Token Address
       const exchange = await tx.exchange.findUnique({
         where: { exchangeAddress },

@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { parseEther, isAddress } from 'viem'
 import {
   erc20ABI,
